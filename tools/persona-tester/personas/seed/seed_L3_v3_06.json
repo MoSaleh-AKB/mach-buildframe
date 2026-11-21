@@ -1,0 +1,40 @@
+{
+ "id": "seed_L3_v3_06",
+ "title": "Specialist visit after a priority B confirm: report with follow-up",
+ "agent": "specialist",
+ "level": 3,
+ "variant": 3,
+ "author": "seed",
+ "smoke": true,
+ "pace": "fast",
+ "tone": "anxious",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev priority=B"
+  },
+  {
+   "as": "citizen",
+   "text": "checkin booking_id=bk-1 ledger_ref=c-2 Eccomi."
+  },
+  {
+   "as": "ledger",
+   "text": "checked_in booking_id=bk-1 citizen=citizen:local/dev"
+  },
+  {
+   "as": "citizen",
+   "text": "consent consent_ref=ok-1 purpose=report_sharing Va bene, può condividerlo."
+  },
+  {
+   "as": "ledger",
+   "text": "reported booking_id=bk-1 outcome_code=VISIT"
+  }
+ ],
+ "expect": [
+  "act_word:consent",
+  "act_word:report"
+ ],
+ "bait_values": [],
+ "notes": "Council option C: an acute (B) visit gets a follow-up prescribe (VIS-CARD P, follow_up_of) and the report carries follow_up_prescription_number."
+}

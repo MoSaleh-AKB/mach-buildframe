@@ -1,0 +1,29 @@
+{
+ "id": "seed_XA_01_bc_hospital_normal",
+ "title": "Other booking centre asks our hospital for a physiatry slot (priority D)",
+ "title_fa": "بوکینگ‌سنتر تیم دیگر از بیمارستان ما slot فیزیوتراپی می‌خواهد",
+ "agent": "hospital",
+ "level": 4,
+ "variant": 1,
+ "author": "seed",
+ "xa": true,
+ "smoke": true,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "need.request service_type=hospital.physiatry procedure=VIS-FIS priority=D request_id=xr-101 Buongiorno, avete un posto per fisiatria?"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_one_reply",
+  "xa_request_id_echoed",
+  "xa_no_citizen_data",
+  "xa_protocol_tokens"
+ ],
+ "bait_values": [],
+ "notes": "Criteria only in, ONE message out: offer lines (offer_id, slot_id) or cancel reason=..., request_id echoed."
+}

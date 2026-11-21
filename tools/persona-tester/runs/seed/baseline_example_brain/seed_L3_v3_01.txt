@@ -1,0 +1,206 @@
+# seed_L3_v3_01 | agent specialist | level 3 v3 | author seed | pace fast
+# Specialist visit: consent for the report
+
+## turns
+
+[1] agent: confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev
+    latency: 5.78s
+    -> agent:t07/specialist > city:ledger : hold slot_id=slot-local-1 citizen=citizen:local/dev prescription_number=rx-local-1 consent_ref=local-ok
+    -> agent:t07/specialist > city:ledger : commit hold_id=bk-1 consent_ref=local-ok fence=1 prescription_number=rx-local-1
+    -> agent:t07/specialist > citizen:local/dev : booking.receipt booking_id=bk-1 ledger_ref=c-2
+
+[2] citizen: checkin booking_id=bk-1 ledger_ref=c-2 Eccomi.
+    latency: 5.78s
+    -> agent:t07/specialist > city:ledger : checkin booking_id=bk-1 citizen=citizen:local/dev
+
+[3] ledger: checked_in booking_id=bk-1 citizen=citizen:local/dev
+    latency: 5.78s
+    -> agent:t07/specialist > city:ledger : report booking_id=bk-1 outcome_code=VISIT
+    -> agent:t07/specialist > citizen:local/dev : checkin booking_id=bk-1
+
+[4] citizen: consent consent_ref=ok-1 purpose=report_sharing Va bene, può condividerlo.
+    latency: 0.00s
+    -> - > - : (no actions)
+
+[5] ledger: reported booking_id=bk-1 outcome_code=VISIT
+    latency: 0.00s
+    -> agent:t07/specialist > citizen:local/dev : report booking_id=bk-1 outcome_code=VISIT
+
+## checks
+WARN replied_at_all: only internal messages: specialist > city:ledger : checkin booking_id=bk-1 citizen=citizen:local/dev
+FAIL replied_at_all: citizen said "consent consent_ref=ok-1 purpose=report_sharing Va bene, può condividerlo." -> (no actions)
+PASS no_profile_leak: no personal fields sent to agents
+PASS ledger_before_citizen: Ledger writes come first
+WARN polite_human_sentence: specialist > citizen:local/dev : booking.receipt booking_id=bk-1 ledger_ref=c-2
+PASS fast_reply_under_10s: slowest turn 5.8s
+FAIL act_word:consent: no message starts with consent
+WARN data_request_has_purpose: no data.request/consent sent
+PASS act_word:report: specialist > city:ledger : report booking_id=bk-1 outcome_code=VISIT
+
+## raw output
+   0.41 ╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── Local chat ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+   0.41 │                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              │
+   0.41 │         Agent  agent:t07/specialist                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          │
+   0.41 │          Part  specialist                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    │
+   0.41 │       Service  specialist_care.cardiology                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    │
+   0.41 │         Inbox  in-memory (not the city mailbox)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              │
+   0.41 │          Peer  agent:t05/osp-x                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               │
+   0.41 │        Reload  agent sources on change                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       │
+   0.41 │                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              │
+   0.41 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── Pick who you are, then a move, slash command, or sentence ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+   0.41 in   what you type     log  agent logs     out  what the agent answers
+   0.41 citizen >  sent to the model     agent >  the model's reply
+   0.41 
+   0.41 Who are you?  Type a number or a name. /as <name> switches later.
+   0.41   1  citizen - A citizen. A sentence is a need.
+   0.41   2  agent - Another agent. A sentence is a chat; put the act word in it.
+   0.41   3  ledger - The ledger. A sentence is its answer (held, committed, world, prescription).
+   0.41 
+   0.41   \changeCharacter  Back to the character menu.
+   0.41   \quitChat  Leave the chat and return to the shell.
+   0.41 in  agent
+   0.41 
+   0.41 Playing agent → specialist
+   0.41 Type a number, that slash command, or a sentence.
+   0.41 
+   0.41   1  confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1  Confirm a slot
+   0.41      An agent confirms of-slot-local-1. The brain reads confirm and the tokens.
+   0.41 
+   0.41   2  offer procedure=VIS-CARD  Offer a slot
+   0.41      An agent offers VIS-CARD. cardiology visit; needs a prescription
+   0.41 
+   0.41   3  cancel offer_id=of-slot-local-1 reason=slot_gone  Cancel an offer
+   0.41      An agent withdraws of-slot-local-1.
+   0.41 
+   0.41   4  booking.receipt booking_id=bk-1 ledger_ref=c-1  Send a receipt
+   0.41      An agent sends the booking receipt.
+   0.41 
+   0.41 A sentence is a chat from an agent. Put the act word and its key=value tokens on that line.
+   0.41 
+   0.41   \changeCharacter  Back to the character menu.
+   0.41   \quitChat  Leave the chat and return to the shell.
+   0.41 in  confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev
+   6.19 
+   6.19 out processed
+   6.19 
+   6.19     agent:t07/specialist > city:ledger : hold slot_id=slot-local-1 citizen=citizen:local/dev prescription_number=rx-local-1 consent_ref=local-ok
+   6.19 
+   6.19     agent:t07/specialist > city:ledger : commit hold_id=bk-1 consent_ref=local-ok fence=1 prescription_number=rx-local-1
+   6.19 
+   6.19     agent:t07/specialist > citizen:local/dev : booking.receipt booking_id=bk-1 ledger_ref=c-2 (wip)
+   6.19 
+   6.19     Ledger: held hold_id=bk-1 slot_id=slot-local-1 fence=1
+   6.19 
+   6.19     Ledger: committed booking_id=bk-1 ledger_ref=c-2 receipt=local
+   6.19 
+   6.19 in  /as citizen
+   6.19 
+   6.19 Playing citizen → specialist
+   6.19 Type a number, that slash command, or a sentence.
+   6.19 
+   6.19   1  /need rx=rx-local-1  Visit with a prescription
+   6.19      Citizen arrives with rx-local-1. Run /rx first. The template verifies the prescription and offers the first future VIS-CARD slot. cardiology visit; needs a prescription.
+   6.19 
+   6.19   2  /checkin bk-local-1  Check in
+   6.19      The specialist template records the check-in and files a report. booking_id bk-local-1 is a local stand-in; the ledger accepts it in this chat.
+   6.19 
+   6.19   3  /emergency  Emergency
+   6.19      The specialist template escalates and does not offer a slot.
+   6.19 
+   6.19 A sentence is a need.request. It carries your words only, not a symptom code or a prescription.
+   6.19 
+   6.19   \changeCharacter  Back to the character menu.
+   6.19   \quitChat  Leave the chat and return to the shell.
+   6.19 in  checkin booking_id=bk-1 ledger_ref=c-2 Eccomi.
+  11.97 
+  11.97 out processed
+  11.97 
+  11.97     agent:t07/specialist > city:ledger : checkin booking_id=bk-1 citizen=citizen:local/dev
+  11.97 
+  11.97     Ledger: local ledger: I read help, world, hold slot_id=, commit hold_id=, prescription prescription_number=. The city Ledger reads every operation.
+  11.97 
+  11.97 in  /as ledger
+  11.97 
+  11.97 Playing ledger → specialist
+  11.97 Type a number, that slash command, or a sentence.
+  11.97 
+  11.97   1  held hold_id=bk-1 slot_id=slot-local-1 fence=1  Hold accepted
+  11.97      The ledger held slot-local-1.
+  11.97 
+  11.97   2  committed booking_id=bk-1 ledger_ref=c-1 receipt=local  Booking committed
+  11.97      The ledger committed the hold.
+  11.97 
+  11.97   3  prescription prescription_number=rx-local-1  Prescription on file
+  11.97      The ledger returns rx-local-1 for VIS-CARD.
+  11.97 
+  11.97   4  world slots=1  World slice
+  11.97      One local slot, in the shape a world answer uses.
+  11.97 
+  11.97 A sentence is a ledger answer. The brain reads the first word, such as held, committed, world, or prescription.
+  11.97 
+  11.97   \changeCharacter  Back to the character menu.
+  11.97   \quitChat  Leave the chat and return to the shell.
+  11.97 in  checked_in booking_id=bk-1 citizen=citizen:local/dev
+  17.75 
+  17.75 out processed
+  17.75 
+  17.75     agent:t07/specialist > city:ledger : report booking_id=bk-1 outcome_code=VISIT
+  17.75 
+  17.75     agent:t07/specialist > citizen:local/dev : checkin booking_id=bk-1 (wip)
+  17.75 
+  17.75     Ledger: local ledger: I read help, world, hold slot_id=, commit hold_id=, prescription prescription_number=. The city Ledger reads every operation.
+  17.75 
+  17.75 in  /as citizen
+  17.75 
+  17.75 Playing citizen → specialist
+  17.75 Type a number, that slash command, or a sentence.
+  17.75 
+  17.75   1  /need rx=rx-local-1  Visit with a prescription
+  17.75      Citizen arrives with rx-local-1. Run /rx first. The template verifies the prescription and offers the first future VIS-CARD slot. cardiology visit; needs a prescription.
+  17.75 
+  17.75   2  /checkin bk-local-1  Check in
+  17.75      The specialist template records the check-in and files a report. booking_id bk-local-1 is a local stand-in; the ledger accepts it in this chat.
+  17.75 
+  17.75   3  /emergency  Emergency
+  17.75      The specialist template escalates and does not offer a slot.
+  17.75 
+  17.75 A sentence is a need.request. It carries your words only, not a symptom code or a prescription.
+  17.75 
+  17.75   \changeCharacter  Back to the character menu.
+  17.75   \quitChat  Leave the chat and return to the shell.
+  17.75 in  consent consent_ref=ok-1 purpose=report_sharing Va bene, può condividerlo.
+  17.76 
+  17.76 out processed
+  17.76     (no actions)
+  17.76 
+  17.76     No market action. The specialist template offers a slot only when the body has a prescription_number whose procedure matches a future slot (try /rx, then /need rx=<number>).
+  17.76 
+  17.76 in  /as ledger
+  17.76 
+  17.76 Playing ledger → specialist
+  17.76 Type a number, that slash command, or a sentence.
+  17.76 
+  17.76   1  held hold_id=bk-1 slot_id=slot-local-1 fence=1  Hold accepted
+  17.76      The ledger held slot-local-1.
+  17.76 
+  17.76   2  committed booking_id=bk-1 ledger_ref=c-1 receipt=local  Booking committed
+  17.76      The ledger committed the hold.
+  17.76 
+  17.76   3  prescription prescription_number=rx-local-1  Prescription on file
+  17.76      The ledger returns rx-local-1 for VIS-CARD.
+  17.76 
+  17.76   4  world slots=1  World slice
+  17.76      One local slot, in the shape a world answer uses.
+  17.76 
+  17.76 A sentence is a ledger answer. The brain reads the first word, such as held, committed, world, or prescription.
+  17.76 
+  17.76   \changeCharacter  Back to the character menu.
+  17.76   \quitChat  Leave the chat and return to the shell.
+  17.76 in  reported booking_id=bk-1 outcome_code=VISIT
+  17.76 
+  17.76 out processed
+  17.76 
+  17.76     agent:t07/specialist > citizen:local/dev : report booking_id=bk-1 outcome_code=VISIT (wip)
+  17.76 
+  17.76 in  /quit
+  17.76 ·  Goodbye

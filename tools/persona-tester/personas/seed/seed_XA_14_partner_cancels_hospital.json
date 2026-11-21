@@ -1,0 +1,31 @@
+{
+ "id": "seed_XA_14_partner_cancels_hospital",
+ "title": "Partner cancels the offer after our offer",
+ "title_fa": "همکار پیشنهاد را لغو می‌کند",
+ "agent": "hospital",
+ "level": 6,
+ "variant": 3,
+ "author": "seed",
+ "xa": true,
+ "smoke": false,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "need.request service_type=hospital.physiatry procedure=VIS-FIS priority=D request_id=xr-114"
+  },
+  {
+   "as": "agent",
+   "text": "cancel offer_id=of-slot-local-1 reason=citizen_declined request_id=xr-114"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_protocol_tokens",
+  "xa_no_citizen_data"
+ ],
+ "bait_values": [],
+ "notes": "A partner cancel frees the slot (no hold/commit after it) and gets at most one courtesy line."
+}

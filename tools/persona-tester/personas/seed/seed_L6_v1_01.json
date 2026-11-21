@@ -1,0 +1,29 @@
+{
+ "id": "seed_L6_v1_01",
+ "title": "Hold expired before commit",
+ "title_fa": "نگه‌داری قبل از commit منقضی شد",
+ "agent": "hospital",
+ "level": 6,
+ "variant": 1,
+ "author": "seed",
+ "smoke": false,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev"
+  },
+  {
+   "as": "ledger",
+   "text": "refused op=commit code=HOLD_EXPIRED"
+  }
+ ],
+ "expect": [
+  "no_retry_on_4xx",
+  "rebook_after_cancel"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

@@ -1,0 +1,1375 @@
+#!/usr/bin/env python3
+"""mach: read-only CLI for the MACH team console. See README.md.
+
+GET only, never /v1/admin/*. Calls go through `edge fetch` (hidden headless Edge with the
+team login), spaced 2 s apart, cached 30 s on disk, retried after 20-40 s on HTTP 429.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import quote
+from zoneinfo import ZoneInfo
+
+BASE = "https://projectnandaitaly.ai"
+HERE = Path(__file__).resolve().parent
+REPO = HERE.parent.parent
+CACHE = HERE / "out" / "cache"
+STATE = HERE / "out" / "state.json"
+ROME = ZoneInfo("Europe/Rome")
+CACHE_TTL = int(os.environ.get("MACH_CACHE_TTL", "30"))  # seconds; env override only for batch runs
+MIN_GAP = 2.0
+QUOTA_SECONDS = 300
+ROLES = ["gp", "booking_centre", "hospital", "specialist", "family_counseling"]
+FAMILY = {"specialist": "specialist_care"}
+PENALTY_ROLES = {"gp", "booking_centre", "family_counseling"}
+TABS = {"team": "/v1/team", "assignment": "/v1/team/assignment", "deployments": "/v1/team/deployments",
+        "wave": "/v1/team/wave", "reputation": "/v1/team/reputation", "usage": "/v1/team/usage",
+        "market": "/v1/team/market", "conversations": "/v1/team/conversations",
+        "world": "/v1/team/world", "journeys": "/v1/team/journeys", "profile": "/v1/team/profile",
+        "agents": "/v1/agents", "leaderboard": "/v1/leaderboard"}
+
+
+# ---------------------------------------------------------------- fetch
+
+class FetchError(Exception):
+    pass
+
+
+def _gap() -> None:
+    f = CACHE / ".last"
+    try:
+        last = float(f.read_text())
+    except (OSError, ValueError):
+        last = 0.0
+    wait = last + MIN_GAP - time.time()
+    if wait > 0:
+        time.sleep(wait)
+
+
+def _stamp() -> None:
+    try:
+        (CACHE / ".last").write_text(str(time.time()))
+    except OSError:
+        pass
+
+
+def fetch(path: str, ttl: int = CACHE_TTL, raw: bool = False) -> object:
+    """GET one console path. Returns parsed JSON. Raises FetchError."""
+    if not path.startswith("/v1/") or path.startswith("/v1/admin"):
+        raise FetchError("refused: only GET on /v1/* (never /v1/admin/*)")
+    CACHE.mkdir(parents=True, exist_ok=True)
+    key = CACHE / (hashlib.sha1(path.encode()).hexdigest() + ".json")
+    if key.exists() and time.time() - key.stat().st_mtime < ttl:
+        try:
+            cached = json.loads(key.read_text())
+            if not raw or isinstance(cached, str):
+                return cached
+        except ValueError:
+            pass
+    last = ""
+    tries = 0
+    while tries < 4:
+        tries += 1
+        _gap()
+        try:
+            res = subprocess.run(["edge", "fetch", BASE + path], capture_output=True, text=True, timeout=90)
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            _stamp()
+            raise FetchError(f"edge failed: {exc}")
+        _stamp()
+        text = res.stdout.strip()
+        err = (res.stderr or "").strip()
+        if text.startswith("<!doctype") or "429" in err:
+            last = "HTTP 429 rate limited"
+            wait = 20 + 7 * tries
+            print(f"  (429, waiting {wait}s)", file=sys.stderr)
+            time.sleep(wait)
+            continue
+        if res.returncode != 0 and not text:
+            last = err[:160] or f"exit {res.returncode}"
+            if "503" in err or "502" in err or "504" in err:
+                time.sleep(5)
+                continue
+            raise FetchError(last)
+        if raw:
+            key.write_text(json.dumps(text))
+            return text
+        try:
+            data = json.loads(text)
+        except ValueError:
+            raise FetchError("not json: " + text[:120])
+        key.write_text(text)
+        return data
+    raise FetchError(last or "failed")
+
+
+def get(path: str, default=None):
+    try:
+        return fetch(path)
+    except FetchError as exc:
+        print(f"  [warn] {path}: {exc}", file=sys.stderr)
+        return default
+
+
+# ---------------------------------------------------------------- helpers
+
+def now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def parse_t(s) -> datetime | None:
+    if not s or not isinstance(s, str):
+        return None
+    try:
+        s = s.replace("Z", "+00:00")
+        m = re.match(r"(.*\.\d{6})\d*(\+.*)?$", s)
+        if m:
+            s = m.group(1) + (m.group(2) or "")
+        d = datetime.fromisoformat(s)
+        return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+    except ValueError:
+        return None
+
+
+def rome(s, date=False) -> str:
+    d = s if isinstance(s, datetime) else parse_t(s)
+    if not d:
+        return "-"
+    d = d.astimezone(ROME)
+    return d.strftime("%d %H:%M:%S") if date else d.strftime("%H:%M:%S")
+
+
+def ago(secs: float | None) -> str:
+    if secs is None:
+        return "-"
+    secs = int(secs)
+    if secs < 120:
+        return f"{secs}s"
+    if secs < 7200:
+        return f"{secs // 60}m{secs % 60:02d}s"
+    return f"{secs // 3600}h{(secs % 3600) // 60:02d}m"
+
+
+def trunc(s, n) -> str:
+    s = str(s if s is not None else "").replace("\n", " / ")
+    return s if len(s) <= n else s[: n - 1] + "~"
+
+
+def table(rows: list[list], head: list[str]) -> str:
+    rows = [[str(c) for c in r] for r in rows]
+    w = [max(len(head[i]), *(len(r[i]) for r in rows)) if rows else len(head[i]) for i in range(len(head))]
+    out = ["  ".join(head[i].ljust(w[i]) for i in range(len(head))).rstrip()]
+    out.append("  ".join("-" * w[i] for i in range(len(head))))
+    for r in rows:
+        out.append("  ".join(r[i].ljust(w[i]) for i in range(len(head))).rstrip())
+    return "\n".join(out)
+
+
+def emit_json(obj) -> None:
+    print(json.dumps(obj, indent=1, ensure_ascii=False, default=str))
+
+
+def citizen_no(cid) -> str:
+    m = re.search(r"(\d+)$", str(cid or ""))
+    return m.group(1).lstrip("0") or "0" if m else str(cid)
+
+
+def text_of(m: dict) -> str:
+    b = m.get("body")
+    if isinstance(b, dict):
+        return str(b.get("text") if b.get("text") is not None else json.dumps(b, ensure_ascii=False))
+    return str(b if b is not None else "")
+
+
+def rows_of(data, *keys):
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        for k in keys:
+            if isinstance(data.get(k), list):
+                return data[k]
+    return []
+
+
+# ---------------------------------------------------------------- model
+
+def brain_folders() -> dict[str, list[str]]:
+    out: dict[str, list[str]] = {}
+    for d in sorted((REPO / "asst").glob("*")):
+        for fn in ("card.yaml", "city.yaml"):
+            f = d / fn
+            if f.is_file():
+                for line in f.read_text(errors="replace").splitlines():
+                    m = re.match(r"\s*agent_id:\s*(agent:[a-z0-9]+)", line)
+                    if m and d.name not in out.setdefault(m.group(1), []):
+                        out[m.group(1)].append(d.name)
+    return out
+
+
+class World:
+    """Everything read from the console once per command (cached on disk)."""
+
+    def __init__(self):
+        self.assignment = get("/v1/team/assignment", {}) or {}
+        self.deps_raw = get("/v1/team/deployments", {}) or {}
+        self.brains = brain_folders()
+        self._journeys = None
+        self._details: dict[str, dict] = {}
+        self._logs: dict[tuple, list] = {}
+        self.roster = self._roster()
+        self.deployments = rows_of(self.deps_raw, "deployments")
+        self.agent_role: dict[str, str] = {}
+        for role, r in self.roster.items():
+            for a in r["agents"]:
+                self.agent_role.setdefault(a["agent_id"], role)
+            if r["confirmed"]:
+                self.agent_role[r["confirmed"]] = role
+        for d in self.deployments:
+            aid = d.get("agent_id")
+            if aid and aid not in self.agent_role:
+                folders = [f for f in self.brains.get(aid, []) if not f.endswith("_kit")]
+                self.agent_role[aid] = (folders[0] if folders else "?")
+        self.state = self._load_state()
+        self._note_deployments()
+
+    # roster
+    def _roster(self) -> dict:
+        roster: dict[str, dict] = {}
+        for r in rows_of(self.assignment, "roles") if isinstance(self.assignment, dict) else []:
+            fam = r.get("family")
+            agents = [a for a in r.get("agents", []) if isinstance(a, dict) and a.get("agent_id")]
+            roster[fam] = {"family": fam, "confirmed": r.get("confirmed_agent"), "agents": agents,
+                           "summary": r.get("summary")}
+        return roster
+
+    def role_key(self, role: str) -> str:
+        """Roster family name for a CLI role."""
+        for cand in (role, FAMILY.get(role, ""), role + "_care"):
+            if cand and cand in self.roster:
+                return cand
+        return FAMILY.get(role, role)
+
+    def display_role(self, family: str) -> str:
+        return {"specialist_care": "specialist"}.get(family, family)
+
+    def agent_of(self, role: str) -> str | None:
+        fam = self.role_key(role)
+        r = self.roster.get(fam)
+        if r and r["confirmed"]:
+            return r["confirmed"]
+        if r and r["agents"]:
+            return r["agents"][0]["agent_id"]
+        for aid, rl in self.agent_role.items():
+            if self.display_role(rl) == role or rl == role:
+                return aid
+        return None
+
+    def role_name(self, aid: str) -> str:
+        if not aid:
+            return "-"
+        if aid.startswith("citizen:"):
+            return "citizen " + citizen_no(aid)
+        rl = self.agent_role.get(aid)
+        return self.display_role(rl) if rl else aid.replace("agent:", "")[:8]
+
+    def agents_list(self) -> dict:
+        if not hasattr(self, "_agents"):
+            self._agents = {x.get("agent_id"): x for x in rows_of(get("/v1/agents", []), "agents")}
+        return self._agents
+
+    def visibility(self, aid: str) -> str:
+        for r in self.roster.values():
+            for a in r["agents"]:
+                if a["agent_id"] == aid:
+                    return str(a.get("visibility") or "?")
+        x = self.agents_list().get(aid)
+        if x:
+            return str(x.get("visibility") or "?") + " (/v1/agents)"
+        return "not in roster"
+
+    def all_agents(self) -> list[str]:
+        ids: list[str] = []
+        for role in ROLES:
+            a = self.agent_of(role)
+            if a and a not in ids:
+                ids.append(a)
+        for r in self.roster.values():
+            for a in r["agents"]:
+                if a["agent_id"] not in ids:
+                    ids.append(a["agent_id"])
+        for d in self.deployments:
+            if d.get("agent_id") and d["agent_id"] not in ids:
+                ids.append(d["agent_id"])
+        return ids
+
+    # deployments
+    def _load_state(self) -> dict:
+        try:
+            return json.loads(STATE.read_text())
+        except (OSError, ValueError):
+            return {}
+
+    def _note_deployments(self) -> None:
+        seen = self.state.setdefault("dep_first_seen", {})
+        changed = False
+        for d in self.deployments:
+            i = d.get("deployment_id")
+            if i and i not in seen:
+                seen[i] = now().isoformat()
+                changed = True
+        if changed:
+            try:
+                STATE.parent.mkdir(parents=True, exist_ok=True)
+                STATE.write_text(json.dumps(self.state))
+            except OSError:
+                pass
+
+    def newest_dep(self, aid: str) -> dict | None:
+        mine = [d for d in self.deployments if d.get("agent_id") == aid]
+        if not mine:
+            return None
+
+        def stamp(d):
+            t = self.dep_time(d)
+            return (t.timestamp() if t else 0.0)
+        # explicit timestamps win; otherwise the later list entry is the newer one
+        if any(self.dep_time(d, real_only=True) for d in mine):
+            return max(mine, key=stamp)
+        return mine[-1]
+
+    def dep_time(self, d: dict, real_only=False) -> datetime | None:
+        for k in ("created_at", "updated_at", "created", "started_at", "submitted_at", "time"):
+            t = parse_t(d.get(k))
+            if t:
+                return t
+        if real_only:
+            return None
+        t = parse_t((self.state.get("dep_first_seen") or {}).get(d.get("deployment_id")))
+        return t
+
+    def dep_age(self, aid: str) -> tuple[float | None, str]:
+        """Seconds since the agent's last deployment was created (most recent evidence)."""
+        cands: list[tuple[float, str]] = []
+        d = self.newest_dep(aid)
+        if d:
+            t = self.dep_time(d)
+            if t:
+                src = "console" if self.dep_time(d, real_only=True) else "first seen by mach"
+                cands.append((now().timestamp() - t.timestamp(), src))
+        folders = [f for f in self.brains.get(aid, []) if not f.endswith("_kit")]
+        logs = REPO / "deploy-logs"
+        if logs.is_dir():
+            for f in logs.glob("*.log"):
+                if any(fo in f.name for fo in folders):
+                    cands.append((time.time() - f.stat().st_mtime, "deploy log " + f.name))
+        if not cands:
+            return None, "unknown"
+        best = min(cands)
+        return best
+
+    @staticmethod
+    def dep_failed(d: dict) -> list[dict]:
+        return [c for c in d.get("conformance") or [] if str(c.get("outcome")).upper() == "FAIL"]
+
+    @staticmethod
+    def dep_state(d: dict | None) -> str:
+        """LIVE / FAILED / IN FLIGHT. A conformance FAIL kept on a deployment that is back in
+        rollout is an old result: the deployment counts as IN FLIGHT."""
+        if not d:
+            return "NONE"
+        status = str(d.get("status") or "").lower()
+        step = str(d.get("step") or "").lower()
+        txt = " ".join(str(d.get(k) or "") for k in ("detail", "error", "message")).lower()
+        if status in ("promoted", "live", "active", "running", "ready", "done", "succeeded", "deployed", "serving"):
+            return "LIVE"
+        if any(w in status for w in ("fail", "error", "reject")) or "quota_exceeded" in txt or "did not become ready" in txt:
+            return "FAILED"
+        if step == "rollout":
+            return "IN FLIGHT"
+        if World.dep_failed(d):
+            return "FAILED"
+        return "IN FLIGHT"
+
+    # journeys
+    def journeys(self) -> list[dict]:
+        if self._journeys is None:
+            self._journeys = rows_of(get("/v1/team/journeys", {}), "journeys")
+        return self._journeys
+
+    def detail(self, need_id: str) -> dict:
+        if need_id not in self._details:
+            d = get(f"/v1/team/journeys/{need_id}", {})
+            self._details[need_id] = d if isinstance(d, dict) else {}
+        return self._details[need_id]
+
+    def details(self, state: str | None = None) -> list[dict]:
+        out = []
+        for j in self.journeys():
+            if state and str(j.get("state")) != state:
+                continue
+            d = self.detail(j["need_id"])
+            d = dict(d)
+            d.setdefault("journey", j)
+            out.append(d)
+        return out
+
+    # logs
+    def logs(self, aid: str, q: str = "") -> list[dict] | None:
+        k = (aid, q)
+        if k not in self._logs:
+            try:
+                data = fetch(f"/v1/logs?agent_id={quote(aid, safe=':')}&q={quote(q)}")
+            except FetchError as exc:
+                print(f"  [warn] logs {aid} q={q!r}: {exc}", file=sys.stderr)
+                self._logs[k] = None
+                return None
+            rows = rows_of(data, "lines", "logs", "items")
+            self._logs[k] = sorted(rows, key=lambda r: str(r.get("time", "")))
+        return self._logs[k]
+
+    def container(self, aid: str, counts: bool = True) -> dict:
+        rows = self.logs(aid)
+        info = {"agent_id": aid, "state": "UNKNOWN", "last": None, "age": None, "deliveries": None,
+                "brain_runs": None, "say_failed": None, "say_lines": []}
+        if rows is None:
+            return info
+        if not rows:
+            return info
+        last = rows[-1]
+        t = parse_t(last.get("time"))
+        info["last"] = last.get("time")
+        info["age"] = (now() - t).total_seconds() if t else None
+        msg = str(last.get("message", ""))
+        down_msg = ("Finished server process" in msg or "Application shutdown complete" in msg
+                    or "Shutting down" in msg or "Waiting for application shutdown" in msg)
+        if down_msg:
+            info["state"] = "SHUT DOWN"
+        elif info["age"] is not None and info["age"] > 60:
+            info["state"] = "STALE"
+        else:
+            info["state"] = "UP"
+        if counts and info["state"] == "UP":
+            dl = self.logs(aid, "delivery")
+            br = self.logs(aid, "brain done")
+            sf = self.logs(aid, "care.say.failed")
+            info["deliveries"] = None if dl is None else len(dl)
+            info["brain_runs"] = None if br is None else len(br)
+            info["say_failed"] = None if sf is None else len(sf)
+            info["say_lines"] = [str(r.get("message", "")) for r in (sf or [])][-3:]
+        return info
+
+    def replies(self, aid: str) -> dict:
+        """Messages FROM this agent seen in the journeys (the only proof of life that never 429s)."""
+        times = []
+        for d in self.details():
+            for m in d.get("messages", []):
+                if m.get("from") == aid:
+                    t = parse_t(m.get("sent_at"))
+                    if t:
+                        times.append(t)
+        times.sort()
+        n = now()
+        return {"last": times[-1].isoformat() if times else None,
+                "age": (n - times[-1]).total_seconds() if times else None,
+                "n10": sum(1 for t in times if (n - t).total_seconds() <= 600),
+                "n15": sum(1 for t in times if (n - t).total_seconds() <= 900),
+                "total": len(times)}
+
+    def serving(self, aid: str, con: dict) -> dict:
+        """UP when the newest deployment is promoted AND (recent log lines OR a reply in the last 10 min).
+        Empty or failed logs are UNKNOWN, never a fault."""
+        dep = self.newest_dep(aid)
+        ds = self.dep_state(dep)
+        rep = self.replies(aid)
+        if ds == "IN FLIGHT":
+            state, why = "IN FLIGHT", "deployment in rollout/conformance"
+        elif ds == "FAILED":
+            state, why = "NOT DEPLOYED", "newest deployment failed"
+        elif ds == "NONE":
+            state, why = "NOT DEPLOYED", "no deployment"
+        elif rep["n10"] > 0:
+            state, why = "UP", f"{rep['n10']} replies in the last 10 min"
+        elif con["state"] == "UP":
+            state, why = "UP", "recent log lines"
+        elif con["state"] in ("SHUT DOWN", "STALE"):
+            state, why = "LOGS SAY DOWN", f"last log {con['state']} {ago(con['age'])} ago, no reply in 10 min"
+        else:
+            state, why = "UNKNOWN", "promoted, logs empty or rate limited, no recent reply (not proof of a fault)"
+        return {"state": state, "why": why, "deployment_state": ds, "deployment_status": (dep or {}).get("status"),
+                "last_reply": rep["last"], "last_reply_age": rep["age"], "replies_10m": rep["n10"],
+                "replies_15m": rep["n15"], "replies_total": rep["total"]}
+
+
+# ---------------------------------------------------------------- doctor logic
+
+def agent_open_journeys(w: World, aid: str) -> list[dict]:
+    out = []
+    for d in w.details("open"):
+        if any(m.get("to") == aid or m.get("from") == aid for m in d.get("messages", [])):
+            out.append(d)
+    return out
+
+
+KNOWN = [
+    ("custody.ack", "brain took over 5 s on the gate's test message", "run `mach gate`, fix the slow role, then deploy once"),
+    ("agent ingress route did not become ready", "overlapping deploys of the same agent or platform load",
+     "wait; deploy that agent once with nothing else in flight for it"),
+    ("QUOTA_EXCEEDED", "one update per agent per 5 minutes", "wait for the 300 s countdown (`mach inflight`), then deploy once"),
+]
+
+
+def dep_failure_text(d: dict) -> tuple[str, str]:
+    failed = World.dep_failed(d)
+    parts = [(str(c.get('detail')) if str(c.get('detail')).startswith(str(c.get('name'))) else f"{c.get('name')}: {c.get('detail')}")
+             for c in failed]
+    for k in ("error", "detail", "message"):
+        if d.get(k) and str(d.get(k)) not in " ".join(parts):
+            parts.append(f"{k}: {d.get(k)}")
+    stage = failed[0].get("name") if failed else str(d.get("step") or d.get("status"))
+    return stage, " | ".join(parts)
+
+
+def diagnose(w: World, counts: bool = True) -> list[dict]:
+    """Redeploy is recommended ONLY for: newest deployment failed with nothing in flight for it, or
+    an empty roster role with nothing in flight. Logs alone never justify a redeploy."""
+    out = []
+    n_flight = sum(1 for aid in w.all_agents() if w.dep_state(w.newest_dep(aid)) == "IN FLIGHT")
+    for role in ROLES:
+        rk = w.role_key(role)
+        r = w.roster.get(rk)
+        aid = w.agent_of(role)
+        item = {"role": role, "agent_id": aid, "problems": [], "ok": True, "notes": []}
+        confirmed = r["confirmed"] if r else None
+        dep = w.newest_dep(aid) if aid else None
+        st = w.dep_state(dep)
+        in_flight_here = st == "IN FLIGHT"
+        if not confirmed:
+            pen = " (-4 per citizen)" if role in PENALTY_ROLES else ""
+            act = "confirm an agent for this role in the console roster"
+            if aid and st == "LIVE":
+                act += f" (agent {aid.replace('agent:', '')} is already promoted: confirm it, do not redeploy)"
+            elif not in_flight_here:
+                act += "; deploy one only if nothing is in flight for it"
+            else:
+                act += "; a deployment is in flight, wait for it"
+            item["problems"].append({"code": "EMPTY ROLE", "evidence": f"no confirmed agent in the roster for {role}{pen}",
+                                     "action": act})
+        if aid:
+            con = w.container(aid, counts=counts)
+            sv = w.serving(aid, con)
+            item["container"] = con
+            item["serving"] = sv
+            if dep and st == "FAILED":
+                stage, text = dep_failure_text(dep)
+                hits = [k for k in KNOWN if k[0] in text or (k[0] == "custody.ack" and "renews=[] acks=[]" in text)]
+                cause = "; ".join(f"{k[1]} -> {k[2]}" for k in hits) or "unknown cause, read the detail"
+                extra = f" ({n_flight} other deployments in flight: wait for the queue first)" if n_flight else ""
+                item["problems"].append({"code": "DEPLOY FAILED", "evidence": f"stage {stage}: {trunc(text, 220)}",
+                                         "action": cause + extra})
+            elif in_flight_here:
+                old = World.dep_failed(dep)
+                note = f"; carries an older conformance FAIL ({old[0].get('name')}), judge the new run first" if old else ""
+                item["problems"].append({"code": "IN FLIGHT", "evidence": f"step {dep.get('step')} status {dep.get('status')} "
+                                         f"{trunc(dep.get('detail') or '', 100)}{note}", "action": "do not redeploy this agent; wait"})
+            elif st == "LIVE":
+                if sv["state"] == "LOGS SAY DOWN":
+                    item["problems"].append({"code": "LOGS SAY DOWN", "evidence": sv["why"],
+                                             "action": "warning only: watch `mach tail " + role + "` and the next reply; do NOT redeploy from logs alone"})
+                if sv["state"] == "UP" and counts and con.get("deliveries") == 0 and sv["replies_15m"] == 0:
+                    opn = agent_open_journeys(w, aid)
+                    if opn:
+                        item["problems"].append({"code": "NO DELIVERIES",
+                                                 "evidence": f"0 delivery lines, 0 replies in 15 min, {len(opn)} open journeys on this agent",
+                                                 "action": "route problem: check roster visibility; do NOT redeploy"})
+                if con.get("say_failed"):
+                    codes = sorted(set(re.findall(r"(?:code|status|error|reason)[=: ]+['\"]?([A-Za-z0-9_.-]+)", " ".join(con["say_lines"]))))
+                    item["problems"].append({"code": "SAY FAILED",
+                                             "evidence": f"{con['say_failed']} care.say.failed lines; codes {codes or 'see logs'}; "
+                                             f"last: {trunc(con['say_lines'][-1] if con['say_lines'] else '', 140)}",
+                                             "action": "sends are refused: read `mach agent {0} logs --q care.say.failed`".format(role)})
+            if con["state"] == "UNKNOWN":
+                item["notes"].append("logs empty or rate limited: UNKNOWN, not a fault")
+        item["ok"] = not item["problems"]
+        out.append(item)
+    return out
+
+
+# ---------------------------------------------------------------- commands
+
+def cmd_get(a):
+    emit_json(fetch(a.path))
+
+
+def simple_tab(name):
+    def run(a):
+        data = fetch(TABS[name])
+        if a.json:
+            emit_json(data)
+            return
+        show_tab(name, data, a)
+    return run
+
+
+def kv(obj: dict, skip=()) -> str:
+    return "\n".join(f"{k:<22} {trunc(json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list)) else v, 110)}"
+                     for k, v in obj.items() if k not in skip)
+
+
+def show_tab(name, data, a):
+    w = None
+    if name == "wave":
+        print(f"WAVE {data.get('wave_id')} level {data.get('level')} state {data.get('state')} x{data.get('multiplier')} "
+              f"rules {data.get('active_rules') or 'none'}")
+        print(kv(data))
+    elif name == "reputation":
+        print(f"REPUTATION score {data.get('score')} (hidden: {data.get('scores_hidden')})")
+        print(table([[x.get("family"), x.get("agent_id"), x.get("reputation"), x.get("rating_count")]
+                     for x in data.get("agents", [])], ["role", "agent", "reputation", "ratings"]))
+    elif name == "usage":
+        t = data.get("total", {})
+        print(f"USAGE {t.get('calls')} calls, {t.get('prompt_tokens')} prompt + {t.get('completion_tokens')} completion tokens, "
+              f"~{data.get('currency')} {t.get('estimated_spend', 0):.4f} (estimate)")
+        print(table([[x.get("alias"), x.get("calls"), x.get("prompt_tokens"), x.get("completion_tokens"),
+                      f"{x.get('estimated_spend', 0):.4f}"] for x in data.get("aliases", [])],
+                    ["alias", "calls", "prompt", "completion", "spend"]))
+    elif name == "market":
+        offers = data.get("offers", [])
+        print(f"MARKET won {data.get('won')} lost {data.get('lost')} win rate {data.get('win_rate')} "
+              f"avg rating {data.get('average_rating')} ratings given {data.get('ratings_given')} offers {len(offers)}")
+        for o in offers[:30]:
+            print("  " + trunc(json.dumps(o, ensure_ascii=False), 160))
+    elif name == "conversations":
+        c = rows_of(data, "conversations")
+        print(f"CONVERSATIONS {len(c)}")
+        for x in c[:40]:
+            print("  " + trunc(json.dumps(x, ensure_ascii=False), 170))
+    elif name == "profile":
+        print(f"PROFILE members {len(data.get('members', []))}, facilities {len(data.get('facilities', []))}, "
+              f"egress {len(data.get('egress', []))}")
+        print(table([[m.get("name"), m.get("role"), m.get("auth_via")] for m in data.get("members", [])],
+                    ["member", "role", "auth"]))
+        print("quotas: " + json.dumps(data.get("quotas"), ensure_ascii=False))
+        for k in ("facilities", "egress"):
+            for x in data.get(k, []):
+                print(f"  {k}: " + trunc(json.dumps(x, ensure_ascii=False), 150))
+    elif name == "agents":
+        ag = rows_of(data, "agents")
+        print(f"AGENTS {len(ag)}")
+        print(table([[x.get("agent_id"), x.get("name"), x.get("version"), x.get("visibility"), x.get("reputation"),
+                      x.get("rating_count")] for x in ag], ["agent", "name", "ver", "visibility", "rep", "ratings"]))
+    elif name == "team":
+        print(kv(data))
+    elif name == "leaderboard":
+        teams = data.get("teams", []) if isinstance(data, dict) else rows_of(data)
+        print(f"LEADERBOARD {len(teams)} teams")
+        print(table([[i + 1, t.get("team"), t.get("score")] for i, t in enumerate(teams[:40])], ["#", "team", "score"]))
+    else:
+        emit_json(data)
+
+
+def cmd_wave(a):
+    simple_tab("wave")(a)
+
+
+def cmd_roster(a):
+    w = World()
+    rows = []
+    for role in ROLES:
+        rk = w.role_key(role)
+        r = w.roster.get(rk) or {}
+        conf = r.get("confirmed")
+        vis = ",".join(f"{x['agent_id'].replace('agent:', '')}:{x.get('visibility')}" for x in r.get("agents", [])) or "-"
+        rows.append({"role": role, "family": rk, "confirmed": conf, "agents": r.get("agents", []),
+                     "brain": ",".join(w.brains.get(conf or "", [])) or "-", "vis": vis})
+    if a.json:
+        emit_json(rows)
+        return
+    empty = [r["role"] for r in rows if not r["confirmed"]]
+    print(f"ROSTER {len(rows) - len(empty)}/{len(rows)} roles filled" + (f"; EMPTY: {', '.join(empty)}" if empty else ""))
+    print(table([[r["role"], (r["confirmed"] or "EMPTY ROLE"), r["brain"], r["vis"]] for r in rows],
+                ["role", "confirmed agent", "brain folder", "agents:visibility"]))
+
+
+def dep_row(w: World, d: dict) -> list:
+    fails = World.dep_failed(d)
+    ft = "; ".join(f"{c.get('name')}: {trunc(c.get('detail'), 90)}" for c in fails)
+    return [w.role_name(d.get("agent_id")), d.get("version"), d.get("status"), d.get("step"), w.dep_state(d),
+            rome(w.dep_time(d), date=False), ft or trunc(d.get("detail") or "", 90)]
+
+
+def cmd_deployments(a):
+    w = World()
+    deps = w.deployments
+    if a.agent:
+        aid = w.agent_of(a.agent)
+        deps = [d for d in deps if d.get("agent_id") == aid]
+    if a.json:
+        emit_json(deps)
+        return
+    fl = sum(1 for d in deps if w.dep_state(d) == "FAILED")
+    inf = sum(1 for d in deps if w.dep_state(d) == "IN FLIGHT")
+    print(f"DEPLOYMENTS {len(deps)}: {fl} failed, {inf} in flight")
+    print(table([dep_row(w, d) for d in deps], ["role", "ver", "status", "step", "state", "seen", "failed stage / detail"]))
+
+
+def cmd_simple(name):
+    def run(a):
+        if name == "world":
+            data = fetch(TABS["world"])
+            if a.json:
+                emit_json(data)
+                return
+            wd = data.get("world", {}) if isinstance(data, dict) else {}
+            print(f"WORLD asst {data.get('asst')} wave {data.get('wave_id')}: {len(wd.get('slots', []))} slots, "
+                  f"{len((wd.get('registry') or {}).get('doctors', []))} doctors, "
+                  f"{len((wd.get('registry') or {}).get('facilities', []))} facilities, "
+                  f"{len(wd.get('catalogue', []))} procedures, {len(wd.get('protocols', []))} protocol rows, districts {wd.get('districts')}")
+            allv = not (a.slots or a.doctors or a.protocol or a.rules)
+            if a.slots or allv:
+                print("\nSLOTS")
+                for s in wd.get("slots", [])[:60]:
+                    print("  " + trunc(json.dumps(s, ensure_ascii=False), 160))
+                if not wd.get("slots"):
+                    print("  (none)")
+            if a.doctors or allv:
+                print("\nDOCTORS / FACILITIES")
+                for s in (wd.get("registry") or {}).get("doctors", []):
+                    print("  doctor " + trunc(json.dumps(s, ensure_ascii=False), 150))
+                for s in (wd.get("registry") or {}).get("facilities", []):
+                    print("  facility " + trunc(json.dumps(s, ensure_ascii=False), 150))
+                print(table([[c.get("code"), c.get("specialty"), c.get("requires_prescription"), len(c.get("providers", []))]
+                             for c in wd.get("catalogue", [])], ["procedure", "specialty", "needs rx", "providers"]))
+            if a.protocol or allv:
+                print("\nPROTOCOL")
+                print(table([[p.get("symptom_code"), p.get("procedure"), p.get("priority"), "; ".join(p.get("red_flags", []))]
+                             for p in wd.get("protocols", [])], ["symptom", "procedure", "prio", "red flags"]))
+            if a.rules or allv:
+                wave = get("/v1/team/wave", {})
+                print("\nRULES")
+                print(f"  active rules: {wave.get('active_rules') or 'none'}; notice: {wave.get('rule_notice')}")
+                for k in ("rules", "rule_set", "constraints"):
+                    if wd.get(k):
+                        print(f"  {k}: " + trunc(json.dumps(wd[k], ensure_ascii=False), 300))
+            return
+        simple_tab(name)(a)
+    return run
+
+
+def cmd_status(a):
+    w = World()
+    wave = get("/v1/team/wave", {})
+    rep = get("/v1/team/reputation", {})
+    jl = w.journeys()
+    states: dict[str, int] = {}
+    for j in jl:
+        states[str(j.get("state"))] = states.get(str(j.get("state")), 0) + 1
+    rows, res = [], []
+    ups = 0
+    for role in ROLES:
+        rk = w.role_key(role)
+        r = w.roster.get(rk) or {}
+        aid = w.agent_of(role)
+        conf = r.get("confirmed")
+        dep = w.newest_dep(aid) if aid else None
+        dstate = World.dep_state(dep)
+        dtxt = "-"
+        if dep:
+            fails = World.dep_failed(dep)
+            dtxt = f"{dep.get('step')}/{dep.get('status')}"
+            if fails:
+                dtxt += f" FAIL {fails[0].get('name')}: {trunc(fails[0].get('detail'), 60)}"
+            elif dep.get("detail"):
+                dtxt += " " + trunc(dep.get("detail"), 60)
+        con = w.container(aid, counts=not a.fast) if aid else {"state": "-", "age": None}
+        sv = w.serving(aid, con) if aid else {"state": "-", "last_reply": None, "last_reply_age": None, "replies_15m": 0}
+        if sv["state"] == "UP":
+            ups += 1
+        lr = "-" if not sv.get("last_reply") else f"{rome(sv['last_reply'])} ({ago(sv['last_reply_age'])})"
+        logs_note = con["state"] + (f" {ago(con['age'])}" if con.get("age") is not None else "")
+        row = [role, (aid or "-").replace("agent:", ""), ",".join(w.brains.get(aid or "", [])) or "-",
+               ("EMPTY ROLE" if not conf else w.visibility(conf)) + ("" if conf or not aid else f" [{w.visibility(aid)}]"),
+               dstate + " " + dtxt, sv["state"], lr, sv.get("replies_15m", 0), logs_note,
+               "-" if con.get("deliveries") is None else con["deliveries"],
+               "-" if con.get("brain_runs") is None else con["brain_runs"],
+               "-" if con.get("say_failed") is None else con["say_failed"]]
+        rows.append(row)
+        res.append({"role": role, "agent_id": aid, "confirmed": conf, "visibility": w.visibility(conf) if conf else None,
+                    "brain": w.brains.get(aid or "", []), "deployment": dep, "deployment_state": dstate, "container": con, "serving": sv})
+    if a.json:
+        emit_json({"wave": wave, "journeys": states, "score": rep.get("score"), "roles": res})
+        return
+    empty = [r["role"] for r in res if not r["confirmed"]]
+    print(f"STATUS {rome(now(), date=True)} Rome | wave L{wave.get('level')} x{wave.get('multiplier')} {wave.get('state')} | "
+          f"{ups}/{len(ROLES)} roles serving | journeys {len(jl)} | score {rep.get('score')}"
+          + (f" | EMPTY ROLES: {', '.join(empty)}" if empty else ""))
+    print(f"wave rules: {wave.get('active_rules') or 'none'}; notice {wave.get('rule_notice') or '-'}; agenda {rome(wave.get('agenda_now'), True)}")
+    print()
+    print(table(rows, ["role", "agent", "brain folder", "roster", "newest deployment", "serving", "last reply", "15m", "logs", "deliv", "brain", "say-fail"]))
+    print()
+    print("journeys: " + ", ".join(f"{k} {v}" for k, v in sorted(states.items())) + f"   score {rep.get('score')}"
+          "\nserving: UP = promoted AND (reply in last 10 min OR recent log lines). logs UNKNOWN = empty or rate limited, not a fault."
+          "\ndeliv/brain/say-fail count the last 150 log lines per query.")
+
+
+def facts(d: dict) -> str:
+    sv = d.get("serving") or {}
+    lr = "never" if not sv.get("last_reply") else f"{rome(sv['last_reply'])} ({ago(sv['last_reply_age'])} ago)"
+    return (f"deployment {sv.get('deployment_status')} ({sv.get('deployment_state')}), state {sv.get('state')}, last reply {lr}, "
+            f"replies in 15 min {sv.get('replies_15m')}" + ("; " + "; ".join(d["notes"]) if d.get("notes") else ""))
+
+
+def cmd_doctor(a):
+    w = World()
+    diag = diagnose(w, counts=not a.fast)
+    if a.json:
+        emit_json(diag)
+        return
+    bad = [d for d in diag if not d["ok"]]
+    print(f"DOCTOR {rome(now(), True)} Rome: {len(diag) - len(bad)}/{len(diag)} roles without findings, {len(bad)} with findings")
+    for d in diag:
+        print()
+        who = (d["agent_id"] or "no agent").replace("agent:", "")
+        if d["ok"]:
+            print(f"[OK] {d['role']} ({who}): serving")
+            print("     " + facts(d))
+            continue
+        print(f"[!!] {d['role']} ({who})")
+        if d.get("serving"):
+            print("     " + facts(d))
+        for p in d["problems"]:
+            print(f"   {p['code']}")
+            print(f"     evidence: {p['evidence']}")
+            print(f"     next:     {p['action']}")
+
+
+def cmd_unanswered(a):
+    w = World()
+    rows = []
+    for d in w.details("open"):
+        msgs = sorted(d.get("messages", []), key=lambda m: str(m.get("sent_at")))
+        if not msgs or not str(msgs[-1].get("from", "")).startswith("citizen:"):
+            continue
+        m = msgs[-1]
+        t = parse_t(m.get("sent_at"))
+        rows.append({"need_id": d["journey"]["need_id"], "citizen": citizen_no(m.get("from")),
+                     "minutes": round((now() - t).total_seconds() / 60, 1) if t else None,
+                     "to": m.get("to"), "role": w.role_name(m.get("to")), "sent_at": m.get("sent_at"),
+                     "text": text_of(m)})
+    rows.sort(key=lambda r: -(r["minutes"] or 0))
+    if a.json:
+        emit_json(rows)
+        return
+    print(f"UNANSWERED {len(rows)} open journeys wait for a reply" + (f", oldest {rows[0]['minutes']} min" if rows else ""))
+    print(table([[r["citizen"], r["minutes"], r["role"], rome(r["sent_at"]), trunc(r["text"], 80)] for r in rows],
+                ["citizen", "min", "waiting on", "sent", "first 80 chars"]))
+    print(f"total {len(rows)}")
+
+
+def cmd_inflight(a):
+    w = World()
+    rows = []
+    for aid in w.all_agents():
+        d = w.newest_dep(aid)
+        if not d and aid not in w.agent_role:
+            continue
+        st = World.dep_state(d)
+        age, src = w.dep_age(aid)
+        left = None if age is None else max(0, QUOTA_SECONDS - age)
+        rows.append({"role": w.role_name(aid), "agent_id": aid, "deployment_state": st, "step": d.get("step") if d else None,
+                     "detail": d.get("detail") if d else None, "age_seconds": age, "age_source": src,
+                     "quota_left_seconds": left})
+    if a.json:
+        emit_json(rows)
+        return
+    busy = [r for r in rows if r["deployment_state"] == "IN FLIGHT"]
+    cool = [r for r in rows if r["quota_left_seconds"]]
+    print(f"INFLIGHT {len(busy)} deployments running; {len(cool)} agents still inside the 300 s quota")
+    print(table([[r["role"], r["deployment_state"], f"{r['step']}", trunc(r["detail"] or "", 50), ago(r["age_seconds"]),
+                  ("wait " + ago(r["quota_left_seconds"])) if r["quota_left_seconds"] else "ok to deploy",
+                  r["age_source"][:28]] for r in rows],
+                ["role", "state", "step", "detail", "since last deploy", "quota", "age from"]))
+    print("never deploy an agent marked IN FLIGHT or 'wait'; one update per agent per 5 minutes.")
+
+
+def log_filter(rows, a):
+    out = rows
+    if getattr(a, "no_health", False):
+        out = [r for r in out if "/health" not in str(r.get("message", ""))]
+    if getattr(a, "errors", False):
+        out = [r for r in out if str(r.get("level", "")).lower() in ("error", "warning", "warn", "critical")
+               or re.search(r"error|failed|traceback|exception", str(r.get("message", "")), re.I)]
+    return out
+
+
+def print_logs(rows):
+    for r in rows:
+        print(f"{rome(r.get('time'))} {str(r.get('level', ''))[:5]:<5} {trunc(r.get('message'), 180)}")
+
+
+def cmd_agent(a):
+    w = World()
+    aid = w.agent_of(a.role)
+    if not aid:
+        print(f"no agent known for role {a.role} (EMPTY ROLE in the roster)")
+        sys.exit(2)
+    mode = a.what
+    if mode == "logs":
+        rows = w.logs(aid, a.q or "") or []
+        rows = log_filter(rows, a)
+        rows = rows[-a.tail:]
+        if a.json:
+            emit_json(rows)
+            return
+        print(f"LOGS {a.role} {aid} q={a.q!r}: {len(rows)} lines (Rome time)")
+        print_logs(rows)
+    elif mode == "messages":
+        msgs = []
+        for d in w.details():
+            for m in d.get("messages", []):
+                if m.get("to") == aid or m.get("from") == aid:
+                    if a.q and a.q.lower() not in text_of(m).lower():
+                        continue
+                    msgs.append({**m, "need_id": d["journey"]["need_id"]})
+        msgs.sort(key=lambda m: str(m.get("sent_at")))
+        msgs = msgs[-a.tail:]
+        convs = [c for c in rows_of(get("/v1/team/conversations", {}), "conversations") if c.get("agent_id") == aid]
+        conv_detail = []
+        for c in convs[:10]:
+            cd = get("/v1/team/conversations/" + quote(str(c.get("conversation_id")), safe=""), {})
+            conv_detail.append({"conversation": c, "detail": cd})
+        if a.json:
+            emit_json({"journey_messages": msgs, "console_conversations": conv_detail})
+            return
+        for cd in conv_detail:
+            c = cd["conversation"]
+            print(f"CONVERSATION {c.get('conversation_id')} {c.get('kind')} {c.get('state')} with {c.get('counterparty')} "
+                  f"facts {(cd['detail'] or {}).get('facts')}")
+            for t in (cd["detail"] or {}).get("timeline", [])[-a.tail:]:
+                print(f"   {rome(t.get('time'))} {t.get('kind')} {t.get('from')}: {trunc(t.get('text'), 150)}")
+        print(f"MESSAGES {a.role}: {len(msgs)} (to or from {aid})")
+        for m in msgs:
+            print(f"{rome(m.get('sent_at'), True)} {w.role_name(m.get('from'))} -> {w.role_name(m.get('to'))} "
+                  f"[{citizen_no(m['need_id'])}] {trunc(text_of(m), 150)}")
+    else:
+        dep = w.newest_dep(aid)
+        con = w.container(aid)
+        opn = agent_open_journeys(w, aid)
+        age, src = w.dep_age(aid)
+        info = {"role": a.role, "agent_id": aid, "brain": w.brains.get(aid, []), "roster": w.visibility(aid),
+                "deployment": dep, "deployment_state": World.dep_state(dep), "container": con,
+                "open_journeys": [d["journey"]["need_id"] for d in opn], "deploy_age_seconds": age}
+        if a.json:
+            emit_json(info)
+            return
+        print(f"AGENT {a.role} {aid} brain {','.join(w.brains.get(aid, [])) or '-'} roster {w.visibility(aid)}")
+        print(f"container {con['state']} last log {rome(con['last'])} ({ago(con['age'])} ago); deliveries {con['deliveries']}, "
+              f"brain runs {con['brain_runs']}, say failures {con['say_failed']}")
+        if dep:
+            print(f"newest deployment {dep.get('deployment_id')} v{dep.get('version')} {World.dep_state(dep)} "
+                  f"step {dep.get('step')} status {dep.get('status')} {trunc(dep.get('detail') or '', 100)}")
+            for c in dep.get("conformance") or []:
+                if str(c.get("outcome")).upper() in ("FAIL", "INCONCLUSIVE"):
+                    print(f"   {c.get('number')} {c.get('name')} {c.get('outcome')}: {trunc(c.get('detail'), 160)}")
+        print(f"open journeys on this agent: {len(opn)}; last deploy {ago(age)} ago ({src})")
+        rows = log_filter(w.logs(aid) or [], argparse.Namespace(no_health=True, errors=False))[-a.tail:]
+        if rows:
+            print("recent non-health lines:")
+            print_logs(rows)
+
+
+def cmd_journeys(a):
+    w = World()
+    jl = [j for j in w.journeys() if not a.state or str(j.get("state")) == a.state]
+    if a.limit:
+        jl = jl[: a.limit]
+    rows = []
+    for j in jl:
+        row = {"need_id": j["need_id"], "citizen": citizen_no(j.get("citizen")), "state": j.get("state"),
+               "score": j.get("score"), "level": j.get("level")}
+        if a.detail:
+            d = w.detail(j["need_id"])
+            ms = sorted(d.get("messages", []), key=lambda m: str(m.get("sent_at")))
+            row.update({"messages": len(ms), "last_from": ms[-1].get("from") if ms else None,
+                        "last_at": ms[-1].get("sent_at") if ms else None, "verdict": d.get("verdict")})
+        rows.append(row)
+    if a.json:
+        emit_json(rows)
+        return
+    states: dict[str, int] = {}
+    for j in w.journeys():
+        states[str(j.get("state"))] = states.get(str(j.get("state")), 0) + 1
+    print(f"JOURNEYS {len(w.journeys())} total ({', '.join(f'{k} {v}' for k, v in sorted(states.items()))}); showing {len(rows)}")
+    if a.detail:
+        print(table([[r["need_id"][-8:], r["citizen"], r["state"], r["score"], r["messages"], w.role_name(r["last_from"]),
+                      rome(r["last_at"], True), "yes" if r["verdict"] else "-"] for r in rows],
+                    ["need", "citizen", "state", "score", "msgs", "last from", "last at", "verdict"]))
+    else:
+        print(table([[r["need_id"], r["citizen"], r["state"], r["score"]] for r in rows], ["need", "citizen", "state", "score"]))
+
+
+def show_obj(obj, indent="  "):
+    if obj is None:
+        print(indent + "(none)")
+    elif isinstance(obj, list):
+        for x in obj:
+            print(indent + "- " + trunc(json.dumps(x, ensure_ascii=False) if not isinstance(x, str) else x, 200))
+    elif isinstance(obj, dict):
+        for k, v in obj.items():
+            print(indent + f"{k}: " + trunc(json.dumps(v, ensure_ascii=False) if not isinstance(v, str) else v, 300))
+    else:
+        print(indent + trunc(obj, 300))
+
+
+def cmd_journey(a):
+    w = World()
+    nid = a.need_id
+    if not nid.startswith("N-"):
+        hits = [j["need_id"] for j in w.journeys() if j["need_id"].endswith(nid.zfill(6)) or j["need_id"].endswith(nid)]
+        if len(hits) != 1:
+            print(f"need id {nid!r} matches {len(hits)} journeys; give the full id")
+            sys.exit(2)
+        nid = hits[0]
+    d = w.detail(nid)
+    if a.json:
+        emit_json(d)
+        return
+    j = d.get("journey", {})
+    msgs = sorted(d.get("messages", []), key=lambda m: str(m.get("sent_at")))
+    print(f"JOURNEY {nid} citizen {citizen_no(j.get('citizen'))} state {j.get('state')} score {j.get('score')} "
+          f"level {j.get('level')} messages {len(msgs)}")
+    print("\nMESSAGES (Rome time)")
+    t0 = parse_t(msgs[0].get("sent_at")) if msgs else None
+    for m in msgs:
+        t = parse_t(m.get("sent_at"))
+        rel = f"+{int((t - t0).total_seconds())}s" if t and t0 else ""
+        print(f"{rome(m.get('sent_at'), True)} {rel:>7} {m.get('type', ''):<10} {w.role_name(m.get('from'))} -> {w.role_name(m.get('to'))}")
+        print("      " + text_of(m))
+    print("\nVERDICT")
+    show_obj(d.get("verdict"))
+    print("\nRATINGS")
+    show_obj(d.get("ratings") or None)
+    print("\nLLM REVIEW")
+    rv = d.get("review")
+    if isinstance(rv, dict):
+        for k, v in rv.items():
+            print(f"  {w.role_name(k) if str(k).startswith('agent:') else k}: " + (v if isinstance(v, str) else json.dumps(v, ensure_ascii=False)))
+    else:
+        show_obj(rv)
+    if not msgs:
+        print("(no messages)")
+    elif str(msgs[-1].get("from", "")).startswith("citizen:") and j.get("state") == "open":
+        t = parse_t(msgs[-1].get("sent_at"))
+        print(f"\nWAITING: last message is the citizen's, {ago((now() - t).total_seconds()) if t else '?'} without reply")
+
+
+FAMILIES = [
+    ("chest pain", re.compile(r"petto|torace|chest|toracic", re.I)),
+    ("palpitations", re.compile(r"cuore|batt|palpit|heart|tachicard", re.I)),
+    ("back pain", re.compile(r"schiena|lombar|back|colonna|cervic", re.I)),
+]
+
+
+def family_of(text: str) -> str:
+    for name, rx in FAMILIES:
+        if rx.search(text):
+            return name
+    return "other"
+
+
+def cmd_citizens(a):
+    w = World()
+    groups: dict[str, list[dict]] = {}
+    for d in w.details():
+        ms = sorted(d.get("messages", []), key=lambda m: str(m.get("sent_at")))
+        first = next((m for m in ms if str(m.get("from", "")).startswith("citizen:")), None)
+        if not first:
+            continue
+        txt = text_of(first)
+        groups.setdefault(family_of(txt), []).append(
+            {"need_id": d["journey"]["need_id"], "citizen": citizen_no(first.get("from")), "state": d["journey"].get("state"),
+             "to": first.get("to"), "sent_at": first.get("sent_at"), "text": txt})
+    if a.json:
+        emit_json(groups)
+        return
+    tot = sum(len(v) for v in groups.values())
+    print(f"CITIZENS {tot} journeys: " + ", ".join(f"{k} {len(v)}" for k, v in groups.items()))
+    for name in ["chest pain", "palpitations", "back pain", "other"]:
+        v = sorted(groups.get(name, []), key=lambda x: str(x["sent_at"]))
+        if not v:
+            continue
+        print(f"\n== {name.upper()} ({len(v)})")
+        for x in v:
+            print(f"#{x['citizen']:<4} {rome(x['sent_at'], True)} {x['state']:<7} -> {w.role_name(x['to'])}: {trunc(x['text'], 130)}")
+
+
+def snapshot(w: World) -> dict:
+    s: dict = {"roster": {}, "dep": {}, "container": {}, "journeys": {}, "answered": [], "verdicts": [], "reds": []}
+    for role in ROLES:
+        r = w.roster.get(w.role_key(role)) or {}
+        s["roster"][role] = [r.get("confirmed"), [(x["agent_id"], x.get("visibility")) for x in r.get("agents", [])]]
+    for aid in w.all_agents():
+        d = w.newest_dep(aid)
+        if d:
+            fails = World.dep_failed(d)
+            s["dep"][w.role_name(aid)] = f"{World.dep_state(d)} {d.get('step')}/{d.get('status')} " + \
+                ("; ".join(f"{c.get('name')}: {trunc(c.get('detail'), 80)}" for c in fails) or trunc(d.get("detail") or "", 80))
+        s["container"][w.role_name(aid)] = w.serving(aid, w.container(aid, counts=False))["state"]
+    for j in w.journeys():
+        s["journeys"][j["need_id"]] = j.get("state")
+    for d in w.details():
+        nid = d["journey"]["need_id"]
+        if any(not str(m.get("from", "")).startswith("citizen:") for m in d.get("messages", [])):
+            s["answered"].append(nid)
+        if d.get("verdict"):
+            s["verdicts"].append(nid)
+            if re.search(r"\bred\b|red_flag|\"red", json.dumps(d["verdict"], ensure_ascii=False).lower()):
+                s["reds"].append(nid)
+    return s
+
+
+def diff_snap(old: dict, new: dict, w: World) -> list[str]:
+    out = []
+    if old["roster"] != new["roster"]:
+        for k in new["roster"]:
+            if old["roster"].get(k) != new["roster"][k]:
+                out.append(f"roster {k}: {old['roster'].get(k)} -> {new['roster'][k]}")
+    for k, v in new["dep"].items():
+        if old["dep"].get(k) != v:
+            out.append(f"deployment {k}: {old['dep'].get(k, '-')} -> {v}")
+    for k, v in new["container"].items():
+        if old["container"].get(k) != v:
+            out.append(f"container {k}: {old['container'].get(k, '-')} -> {v}")
+    for n in new["journeys"]:
+        if n not in old["journeys"]:
+            out.append(f"new journey {n} ({new['journeys'][n]})")
+        elif old["journeys"][n] != new["journeys"][n]:
+            out.append(f"journey {n}: {old['journeys'][n]} -> {new['journeys'][n]}")
+    for n in new["answered"]:
+        if n not in old["answered"]:
+            out.append(f"journey {n} now ANSWERED")
+    for n in new["verdicts"]:
+        if n not in old["verdicts"]:
+            out.append(f"new VERDICT on {n}")
+    for n in new["reds"]:
+        if n not in old["reds"]:
+            out.append(f"new RED on {n}")
+    return out
+
+
+def cmd_watch(a):
+    old = None
+    print(f"watching every {a.every}s; prints only changes (Ctrl-C to stop)")
+    while True:
+        try:
+            for f in CACHE.glob("*.json"):
+                f.unlink()
+        except OSError:
+            pass
+        w = World()
+        new = snapshot(w)
+        stamp = rome(now())
+        if old is None:
+            print(f"{stamp} baseline: {len(new['journeys'])} journeys, {len(new['answered'])} answered, "
+                  f"containers {new['container']}")
+        else:
+            ch = diff_snap(old, new, w)
+            if a.json:
+                print(json.dumps({"time": stamp, "changes": ch}, ensure_ascii=False), flush=True)
+            else:
+                for c in ch:
+                    print(f"{stamp} {c}", flush=True)
+        old = new
+        time.sleep(a.every)
+
+
+def cmd_tail(a):
+    w = World()
+    aid = w.agent_of(a.role)
+    if not aid:
+        print(f"no agent for role {a.role}")
+        sys.exit(2)
+    seen: set = set()
+    first = True
+    print(f"tail {a.role} {aid} every {a.every}s (non-health lines, Rome time; Ctrl-C to stop)")
+    while True:
+        try:
+            for f in CACHE.glob("*.json"):
+                f.unlink()
+        except OSError:
+            pass
+        try:
+            data = fetch(f"/v1/logs?agent_id={quote(aid, safe=':')}&q=", ttl=0)
+            rows = sorted(rows_of(data, "lines", "logs", "items"), key=lambda r: str(r.get("time")))
+        except FetchError as exc:
+            print(f"  [warn] {exc}", file=sys.stderr)
+            rows = []
+        rows = [r for r in rows if "/health" not in str(r.get("message", ""))]
+        new = [r for r in rows if (r.get("time"), r.get("message")) not in seen]
+        if first:
+            new = new[-10:]
+            first = False
+        for r in rows:
+            seen.add((r.get("time"), r.get("message")))
+        print_logs(new)
+        sys.stdout.flush()
+        time.sleep(a.every)
+
+
+def cmd_dump(a):
+    d = Path(a.dir).expanduser()
+    d.mkdir(parents=True, exist_ok=True)
+    w = World()
+    saved = []
+
+    def save(name, data):
+        (d / f"{name}.json").write_text(json.dumps(data, indent=1, ensure_ascii=False))
+        saved.append(name)
+    for name, path in TABS.items():
+        data = get(path, None)
+        if data is not None:
+            save(name, data)
+    for j in w.journeys():
+        save("journey_" + j["need_id"], w.detail(j["need_id"]))
+    for aid in w.all_agents():
+        x = get("/v1/agents/" + quote(aid, safe=""), None)
+        if x is not None:
+            save("agent_" + aid.replace("agent:", ""), x)
+    for c in rows_of(get("/v1/team/conversations", {}), "conversations"):
+        x = get("/v1/team/conversations/" + quote(str(c.get("conversation_id")), safe=""), None)
+        if x is not None:
+            save("conversation_" + re.sub(r"[^A-Za-z0-9_.-]", "_", str(c.get("conversation_id"))), x)
+    try:
+        feed = fetch("/v1/feed?stream=team", raw=True)
+        (d / "feed_team.txt").write_text(str(feed))
+        saved.append("feed_team")
+    except FetchError as exc:
+        print(f"  [warn] feed: {exc}", file=sys.stderr)
+    for aid in w.all_agents():
+        rows = w.logs(aid)
+        if rows is not None:
+            save("logs_" + aid.replace("agent:", ""), {"lines": rows})
+    if a.json:
+        emit_json({"dir": str(d), "files": saved})
+    else:
+        print(f"DUMP {len(saved)} files in {d}")
+
+
+def cmd_gate(a):
+    py = Path.home() / ".local/share/uv/tools/city-cli/bin/python"
+    shared = "asst/_shared/agent.py"
+    results: list[tuple[str, bool, str]] = []
+
+    def run(cmd, label):
+        try:
+            r = subprocess.run(cmd, cwd=REPO, capture_output=True, text=True, timeout=300)
+            return r.returncode, (r.stdout or "") + (r.stderr or "")
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            return 99, str(exc)
+
+    rc, out = run([sys.executable, "-m", "py_compile", shared], "compile")
+    results.append(("py_compile asst/_shared/agent.py", rc == 0, out.strip()[-200:]))
+    if py.exists():
+        rc, out = run([str(py), "-I", "tools/fake-city/conform_time.py", shared], "conform")
+        lines = [ln for ln in out.splitlines() if ln.strip()]
+        role_lines = [ln for ln in lines if re.match(r"(OK |BAD)\s", ln)]
+        for ln in role_lines:
+            results.append(("conform_time " + trunc(ln, 90), ln.startswith("OK "), ""))
+        if not role_lines or (rc != 0 and all(x[1] for x in results[-len(role_lines):])):
+            results.append(("conform_time exit code", rc == 0, trunc(" ".join(lines[-3:]), 200)))
+        for script in ("exp2.py", "check_tokens.py"):
+            rc, out = run([str(py), "-I", f"tools/fake-city/{script}", shared], script)
+            results.append((f"{script} asst/_shared/agent.py", rc == 0, "" if rc == 0 else trunc(" ".join(out.strip().splitlines()[-3:]), 220)))
+    else:
+        results.append(("city-cli python found", False, str(py) + " missing"))
+    base = (REPO / shared).read_bytes() if (REPO / shared).exists() else b""
+    for role in ROLES:
+        f = REPO / "asst" / role / "agent" / "agent.py"
+        same = f.exists() and f.read_bytes() == base
+        results.append((f"asst/{role}/agent/agent.py identical to _shared", same, "" if same else "differs or missing"))
+    ok = all(r[1] for r in results)
+    if a.json:
+        emit_json({"ok": ok, "checks": [{"check": c, "pass": p, "detail": d} for c, p, d in results]})
+    else:
+        for c, p, d in results:
+            print(f"{'PASS' if p else 'FAIL'}  {c}" + (f"   {d}" if d and not p else ""))
+        print(f"\nGATE {'PASS' if ok else 'FAIL'}: {sum(1 for r in results if r[1])}/{len(results)} checks")
+    sys.exit(0 if ok else 1)
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(prog="mach", description="Read-only CLI for the MACH team console (GET only).")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+
+    def add(name, fn, help_, json_=True):
+        p = sub.add_parser(name, help=help_)
+        p.add_argument("--json", action="store_true", help="raw JSON output")
+        p.set_defaults(fn=fn)
+        return p
+    p = add("status", cmd_status, "one screen: wave, roster, deployments, containers, journeys, score")
+    p.add_argument("--fast", action="store_true", help="skip the per-agent delivery/brain/say-failure log queries")
+    p = add("doctor", cmd_doctor, "one plain-words diagnosis per role, with evidence and next action")
+    p.add_argument("--fast", action="store_true", help="skip the delivery and say-failure log queries")
+    add("roster", cmd_roster, "roles, confirmed agent, brain folder, visibility")
+    add("wave", cmd_wave, "wave level, multiplier, rules")
+    p = add("deployments", cmd_deployments, "all deployments with failed stage and detail")
+    p.add_argument("--agent", metavar="ROLE")
+    add("reputation", simple_tab("reputation"), "reputation per agent")
+    add("usage", simple_tab("usage"), "LLM calls, tokens, estimated spend")
+    add("market", simple_tab("market"), "market offers, wins, ratings")
+    add("conversations", simple_tab("conversations"), "conversations tab")
+    p = add("world", cmd_simple("world"), "world: slots, doctors, protocol, rules")
+    for f in ("slots", "doctors", "protocol", "rules"):
+        p.add_argument("--" + f, action="store_true")
+    add("profile", simple_tab("profile"), "members, quotas, facilities, egress")
+    add("team", simple_tab("team"), "team header")
+    add("leaderboard", simple_tab("leaderboard"), "public leaderboard")
+    add("agents", simple_tab("agents"), "/v1/agents list (visibility, version)")
+    p = add("agent", cmd_agent, "one agent: overview, logs, messages")
+    p.add_argument("role", metavar="ROLE", help="gp, booking_centre, hospital, specialist, family_counseling")
+    p.add_argument("what", nargs="?", default="overview", choices=["overview", "logs", "messages"])
+    p.add_argument("--q", default="")
+    p.add_argument("--errors", action="store_true")
+    p.add_argument("--no-health", action="store_true", dest="no_health")
+    p.add_argument("--tail", type=int, default=40)
+    p = add("journeys", cmd_journeys, "list journeys")
+    p.add_argument("--state")
+    p.add_argument("--limit", type=int, default=0)
+    p.add_argument("--detail", action="store_true", help="fetch each journey (message count, last sender, verdict)")
+    p = add("journey", cmd_journey, "full trace of one journey")
+    p.add_argument("need_id")
+    add("citizens", cmd_citizens, "first message of every journey grouped by symptom family")
+    add("unanswered", cmd_unanswered, "open journeys whose last message is the citizen's, oldest first")
+    add("inflight", cmd_inflight, "deployments in flight and the 300 s per-agent quota countdown")
+    p = add("watch", cmd_watch, "print only changes, every N seconds")
+    p.add_argument("--every", type=int, default=60)
+    p = add("tail", cmd_tail, "follow new non-health log lines of one agent")
+    p.add_argument("role")
+    p.add_argument("--every", type=int, default=20)
+    p = add("dump", cmd_dump, "save every tab's raw JSON into DIR")
+    p.add_argument("dir")
+    add("gate", cmd_gate, "local pre-deploy gate (no network)")
+    p = add("get", cmd_get, "raw GET of one /v1 path (debug)")
+    p.add_argument("path")
+    a = ap.parse_args()
+    try:
+        a.fn(a)
+    except FetchError as exc:
+        print(f"mach: {exc}", file=sys.stderr)
+        return 3
+    except KeyboardInterrupt:
+        return 130
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

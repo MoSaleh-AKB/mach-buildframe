@@ -1,0 +1,29 @@
+{
+ "id": "seed_XA_02_bc_hospital_urgent",
+ "title": "Other booking centre, urgent priority U, hasty",
+ "title_fa": "بوکینگ‌سنتر دیگر با اولویت اورژانسی U",
+ "agent": "hospital",
+ "level": 5,
+ "variant": 1,
+ "author": "seed",
+ "xa": true,
+ "smoke": false,
+ "pace": "fast",
+ "tone": "hasty",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "need.request service_type=hospital.physiatry procedure=VIS-FIS priority=U request_id=xr-102 urgente, prima possibile"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_one_reply",
+  "xa_request_id_echoed",
+  "xa_no_citizen_data",
+  "xa_protocol_tokens"
+ ],
+ "bait_values": [],
+ "notes": "Urgent: answer inside the fast-reply window; only slots in the urgent reserve/today, else cancel with a reason."
+}

@@ -1,0 +1,29 @@
+{
+ "id": "seed_L1_v2_01",
+ "title": "Simple booking with a valid prescription",
+ "title_fa": "نوبت ساده با نسخه‌ی معتبر",
+ "agent": "booking_centre",
+ "level": 1,
+ "variant": 2,
+ "author": "seed",
+ "smoke": true,
+ "pace": "fast",
+ "tone": "hasty",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "/rx"
+  },
+  {
+   "as": "citizen",
+   "text": "Prenotazione veloce per favore. prescription_number=rx-local-1 lang=it"
+  }
+ ],
+ "expect": [
+  "offers_in_one_message",
+  "act_word:offer"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

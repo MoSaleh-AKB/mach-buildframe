@@ -1,0 +1,24 @@
+{
+ "id": "seed_L5_v3_01",
+ "title": "Follow-up heart check, waiting list case",
+ "title_fa": "چکاپ پیگیری، لیست انتظار",
+ "agent": "gp",
+ "level": 5,
+ "variant": 3,
+ "author": "seed",
+ "smoke": false,
+ "pace": "fast",
+ "tone": "boomer",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "Buongiorno, devo fare il solito controllo del cuore, non è urgente, quando c'è posto."
+  }
+ ],
+ "expect": [
+  "act_word:prescription"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

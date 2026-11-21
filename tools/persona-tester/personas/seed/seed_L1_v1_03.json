@@ -1,0 +1,24 @@
+{
+ "id": "seed_L1_v1_03",
+ "title": "Very long message with the symptom buried",
+ "title_fa": "پیام خیلی بلند با علامت پنهان در وسط",
+ "agent": "gp",
+ "level": 1,
+ "variant": 1,
+ "author": "seed",
+ "smoke": false,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "Buongiorno, le scrivo perché da tempo ho una serie di problemi: lavoro in ufficio otto ore al giorno, faccio i turni, mia madre è anziana e la seguo io, il fine settimana porto i figli a calcio e la sera non riesco mai a riposare. Il punto è che da circa dieci giorni ho mal di schiena forte la mattina, e volevo capire cosa devo fare per una visita."
+  }
+ ],
+ "expect": [
+  "act_word:prescription"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

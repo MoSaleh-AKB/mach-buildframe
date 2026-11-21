@@ -1,0 +1,29 @@
+{
+ "id": "seed_XA_09_gp_referral_to_booking",
+ "title": "Other team's GP sends a referral to our booking centre",
+ "title_fa": "GP تیم دیگر ارجاع به بوکینگ‌سنتر ما می‌فرستد",
+ "agent": "booking_centre",
+ "level": 5,
+ "variant": 1,
+ "author": "seed",
+ "xa": true,
+ "smoke": false,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "need.request service_type=hospital.physiatry procedure=VIS-FIS priority=B request_id=xr-109 prescription_number=rx-ext-77 Invio impegnativa dal medico di base dell'altra ASST"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_one_reply",
+  "xa_request_id_echoed",
+  "xa_no_citizen_data",
+  "xa_protocol_tokens"
+ ],
+ "bait_values": [],
+ "notes": "Answer with offers/cancel for the criteria; do not demand citizen data from the GP; the referral number is not a profile leak."
+}

@@ -1,0 +1,28 @@
+{
+ "id": "seed_L6_v3_01",
+ "title": "Facility cancels; rebook inside deadline",
+ "title_fa": "مرکز لغو می‌کند؛ نوبت دوباره داخل مهلت",
+ "agent": "specialist",
+ "level": 6,
+ "variant": 3,
+ "author": "seed",
+ "smoke": true,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev"
+  },
+  {
+   "as": "agent",
+   "text": "cancel offer_id=of-slot-local-1 reason=slot_gone"
+  }
+ ],
+ "expect": [
+  "rebook_after_cancel"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

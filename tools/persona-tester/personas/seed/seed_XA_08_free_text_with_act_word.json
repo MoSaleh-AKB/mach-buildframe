@@ -1,0 +1,29 @@
+{
+ "id": "seed_XA_08_free_text_with_act_word",
+ "title": "Request whose free text contains the word 'offer'",
+ "title_fa": "متن آزاد شامل کلمه‌ی offer",
+ "agent": "hospital",
+ "level": 4,
+ "variant": 1,
+ "author": "seed",
+ "xa": true,
+ "smoke": false,
+ "pace": "fast",
+ "tone": "boomer",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "need.request service_type=hospital.physiatry procedure=VIS-FIS priority=D request_id=xr-108 Potete farmi un offer per la settimana? Grazie"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_one_reply",
+  "xa_request_id_echoed",
+  "xa_no_citizen_data",
+  "xa_protocol_tokens"
+ ],
+ "bait_values": [],
+ "notes": "The act word is the first word (need.request); a later word 'offer' in the sentence must not turn the request into an offer."
+}

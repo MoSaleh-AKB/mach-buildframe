@@ -1,0 +1,28 @@
+{
+ "id": "seed_L7_v2_01",
+ "title": "Duplicate confirm from booking",
+ "title_fa": "تأیید تکراری از booking",
+ "agent": "hospital",
+ "level": 7,
+ "variant": 2,
+ "author": "seed",
+ "smoke": true,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev"
+  },
+  {
+   "as": "agent",
+   "text": "confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev"
+  }
+ ],
+ "expect": [
+  "no_double_booking"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

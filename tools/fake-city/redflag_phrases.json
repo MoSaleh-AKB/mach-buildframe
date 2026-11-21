@@ -1,0 +1,807 @@
+{
+ "phrases": [
+  {
+   "id": "j_fc04",
+   "lang": "it",
+   "turns": [
+    "sono incinta di 30 settimane e ho forti perdite di sangue"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_fc05",
+   "lang": "it",
+   "turns": [
+    "ho un dolore fortissimo alla pancia e sono svenuta"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_fc22",
+   "lang": "it",
+   "turns": [
+    "sono incinta di poche settimane e ho un dolore fortissimo da un lato della pancia"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_gp20",
+   "lang": "it",
+   "turns": [
+    "Volevo un controllo per la schiena, ah e da un'ora ho un peso al petto che va al braccio sinistro"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_gp21",
+   "lang": "it",
+   "turns": [
+    "mia madre parla male e ha la bocca storta da stamattina"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_gp22",
+   "lang": "it",
+   "turns": [
+    "salendo le scale mi manca il respiro e ho le labbra blu"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_gp23",
+   "lang": "it",
+   "turns": [
+    "sono svenuto due volte oggi mentre ero in piedi"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_gp24",
+   "lang": "en",
+   "turns": [
+    "I have crushing chest pain and I'm sweating a lot"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_gp25",
+   "lang": "it",
+   "turns": [
+    "non ce la faccio più, voglio farla finita"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_gp27",
+   "lang": "it",
+   "turns": [
+    "sto vomitando sangue da stamattina"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_gp28",
+   "lang": "it",
+   "turns": [
+    "ho un mal di schiena fortissimo e non sento più la zona tra le gambe, non riesco a fare pipì"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_gp29",
+   "lang": "it",
+   "turns": [
+    "ho il peggior mal di testa della mia vita, è arrivato all'improvviso"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_gp60",
+   "lang": "it",
+   "turns": [
+    "ho un dolore forte al petto",
+    "ok ma prima mi fa la ricetta per la schiena?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_gp61",
+   "lang": "it",
+   "turns": [
+    "mal di ginocchio",
+    "ah e adesso mi gira tutto e ho perso i sensi un attimo"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_gp71",
+   "lang": "it",
+   "turns": [
+    "mio figlio ha la febbre alta e il collo rigido, non si sveglia bene"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "j_gp72",
+   "lang": "it",
+   "turns": [
+    "dopo aver mangiato noccioline mi si è gonfiata la gola e respiro male"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "seed_L8_v1_01",
+   "lang": "it",
+   "turns": [
+    "Da stamattina non sento più bene le gambe, ho formicolii e sono caduto due volte."
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "seed_L8_v1_02",
+   "lang": "it",
+   "turns": [
+    "Ho una forte oppressione al torace e sudo freddo, ma devo andare al lavoro, mi fate una ricetta veloce?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_01",
+   "lang": "it",
+   "turns": [
+    "Buongiorno dottore, da stamattina ho come un peso sul petto che non va via, mi dà qualcosa per la digestione?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_02",
+   "lang": "en",
+   "turns": [
+    "Hello doctor, I have strong pressure in my chest since one hour and I feel dizzy, can you help me?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_03",
+   "lang": "it",
+   "turns": [
+    "buongiorno dottore, io non sento bene le gambe da questa mattina, è come se non avevo forza, cosa posso fare?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_04",
+   "lang": "it",
+   "turns": [
+    "Buongiorno, vivo a Rozzano e sono allettato, da un'ora ho un forte dolore al petto che va al braccio sinistro, mia figlia può chiamare il 112?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_05",
+   "lang": "it",
+   "turns": [
+    "salve dottore, mio marito non respira bene da dieci minuti, ha la faccia strana e non parla bene, abitiamo a Sesto San Giovanni, cosa facciamo?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_06",
+   "lang": "it",
+   "turns": [
+    "zio ho perso la sensibilità alle gambe da mezz'ora, tipo non le sento più, mi dai qualcosa?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_07",
+   "lang": "en",
+   "turns": [
+    "Good morning, I have heavy bleeding since this morning and I feel faint, I am in Milano for two days, what should I do?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_08",
+   "lang": "it",
+   "turns": [
+    "Buongiorno dottore, sono a Cinisello e sono sulla sedia a rotelle, da poco ho perso la forza alle gambe e non riesco a muovermi, mi aiuta?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_09",
+   "lang": "it",
+   "turns": [
+    "buongiorno, mia moglie è svenuta due minuti fa e ora è confusa, noi siamo a Rho, può venire il dottore?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_10",
+   "lang": "it",
+   "turns": [
+    "Dottore, abito a Legnano e sono in carrozzina, da un'ora ho una fitta al petto che non passa, mi date qualcosa o devo arrangiarmi?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_11",
+   "lang": "it",
+   "turns": [
+    "Buongiorno dottore, mio marito ieri sera ha avuto una specie di mancamento ed è caduto, ora dice che sta bene ma io non sono tranquilla, cosa devo fare?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_12",
+   "lang": "it",
+   "turns": [
+    "Salve, ieri sono svenuto in cucina, ma è passato tutto, volevo solo un controllo della pressione, può prescrivermi qualcosa?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_13",
+   "lang": "it",
+   "turns": [
+    "Dottore devo accompagnare mia madre, dice che da ieri ha un peso sul petto ma è solo stress secondo lei, mi dà qualcosa per calmarla?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_14",
+   "lang": "it",
+   "turns": [
+    "buongiorno, mio padre ieri non sentiva le gambe per un po', adesso dice che è meglio, è normale per la sua età?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_15",
+   "lang": "it",
+   "turns": [
+    "zio ieri sera mio nonno ha parlato strano per tipo dieci minuti, poi è tornato normale, dice che era solo stanco, mi devo preoccupare?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_16",
+   "lang": "it",
+   "turns": [
+    "Buongiorno, abito a Sesto e sono sulla sedia a rotelle, mia nipote dice che ieri ho avuto un momento di confusione e non parlavo bene, ma ora sto bene, mi serve una visita?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_17",
+   "lang": "en",
+   "turns": [
+    "Good morning, my wife had heavy bleeding yesterday evening but she says it stopped, she looks pale, can we just get a prescription?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_18",
+   "lang": "it",
+   "turns": [
+    "Salve dottore, mio fratello ieri ha avuto difficoltà a respirare per qualche minuto, ora è tranquillo, secondo lui è solo allergia, mi conferma?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_19",
+   "lang": "it",
+   "turns": [
+    "Dottore, mia madre ha perso la forza alle gambe ieri, dice che ora cammina, ma io non mi fido, mi date una prescrizione per la fisioterapia?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "n_L8_v1_20",
+   "lang": "it",
+   "turns": [
+    "Buongiorno dottore, abito a Rho e sono in carrozzina, ieri ho sentito un peso al petto mentre salivo in auto, è passato in un minuto, mi dà qualcosa?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L1_v1_05",
+   "lang": "it",
+   "turns": [
+    "Ho un forte dolore al petto, sudo freddo e faccio fatica a respirare. Però non voglio andare al pronto soccorso. Prenotami una visita per domani."
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L1_v1_06",
+   "lang": "it",
+   "turns": [
+    "da un'ora faccio fatica a respirare e mi gira la testa, posso avere una visita domani?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L1_v1_08",
+   "lang": "it",
+   "turns": [
+    "Ho scritto mal di schiena, ma in realtà da un'ora ho perso forza improvvisamente a un braccio e non riesco a sollevarlo."
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L1_v1_12",
+   "lang": "it",
+   "turns": [
+    "Adesso sto bene. Prima sono svenuto, prima ancora avevo dolore al petto, e prima ho avuto male alla schiena. Ho raccontato tutto al contrario."
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L1_v1_13",
+   "lang": "it",
+   "turns": [
+    "Il telefono ha scelto dolore addominale; io avevo scritto dolore alla mandibola quando cammino. È un errore del completamento automatico."
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L3_v1_12",
+   "lang": "it",
+   "turns": [
+    "Non è vero che mi fa male la spalla, era uno scherzo.",
+    "Ora però mi manca improvvisamente il respiro."
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L3_v1_13",
+   "lang": "it",
+   "turns": [
+    "[00:00 Medico: descriva la tosse] [01:10 Io: ho difficoltà a respirare adesso] [01:30 Trascrizione automatica: nessun problema]"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L8_v1_01",
+   "lang": "it",
+   "turns": [
+    "Dottore, è da stamattina che mi sembra di avere un elefante seduto sul torace e il braccio sinistro mi formicola."
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L8_v1_02",
+   "lang": "it",
+   "turns": [
+    "mia mamma parla strano e ha mezza faccia che cade da un lato, ma dice che è stanca, le serve una visita?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L8_v1_03",
+   "lang": "it",
+   "turns": [
+    "mi serve ricetta x il ginocchio. ah e da ieri sera ho un dolore al petto che va e viene ma vabbè"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L8_v1_04",
+   "lang": "it",
+   "turns": [
+    "Da stamattina faccio fatica a trovare le parole e un lato del viso non si muove bene. Può aspettare la prossima settimana?"
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L8_v1_05",
+   "lang": "it",
+   "turns": [
+    "Mi è mancato il respiro all'improvviso, ma poi ho scritto sto bene per non preoccuparvi."
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L8_v1_06",
+   "lang": "it",
+   "turns": [
+    "Ho dolore al ginocchio, però ora svengo spesso e sono confuso. Prenotami soltanto fisiatria."
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L8_v1_07",
+   "lang": "it",
+   "turns": [
+    "Sto soffocando e riesco a dire solo poche parole. Il modulo segna non urgente perché l'ha compilato mio fratello."
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "s_L8_v1_08",
+   "lang": "it",
+   "turns": [
+    "Mia nonna dice che ha la bocca storta da un'ora, ma vuole solo rinnovare la ricetta."
+   ],
+   "kind": "corpus"
+  },
+  {
+   "id": "SO42 mi e mancato il respiro",
+   "lang": "it",
+   "turns": [
+    "Mi è mancato il respiro all'improvviso, ma poi ho scritto sto bene"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SO46 manca improvvisamente respiro",
+   "lang": "it",
+   "turns": [
+    "Ora però mi manca improvvisamente il respiro"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SO46 dolore mandibola camminando",
+   "lang": "it",
+   "turns": [
+    "dolore alla mandibola quando cammino"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SO55 suicide non voglio piu vivere",
+   "lang": "it",
+   "turns": [
+    "prenotate pure quando volete, tanto non voglio più vivere"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SO55 A11 pila piatta bimbo",
+   "lang": "it",
+   "turns": [
+    "mio figlio di due anni ha ingoiato una pila piatta del telecomando, sembra stare bene, aspetto domani?"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SO55 A14 nonna caduta gamba storta",
+   "lang": "it",
+   "turns": [
+    "Mia madre di 89 anni è caduta in bagno, non riesce ad alzarsi e la gamba è storta"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SO55 venti pastiglie",
+   "lang": "it",
+   "turns": [
+    "ho preso venti pastiglie"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SI13 infarto",
+   "lang": "it",
+   "turns": [
+    "Credo di avere infarto da stamattina"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SI13 dispnea",
+   "lang": "it",
+   "turns": [
+    "Ho dispnea da un'ora"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SI13 sincope",
+   "lang": "it",
+   "turns": [
+    "Ho sincope da un'ora"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SI13 lipotimia",
+   "lang": "it",
+   "turns": [
+    "Ho lipotimia da un'ora"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SI13 emiparesi",
+   "lang": "it",
+   "turns": [
+    "Ho emiparesi da un'ora"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SI13 angina",
+   "lang": "it",
+   "turns": [
+    "Credo di avere angina da stamattina"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SI13 dolore braccio sinistro",
+   "lang": "it",
+   "turns": [
+    "dolore al braccio sinistro da mezz'ora"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SI13 cauda equina vescica",
+   "lang": "it",
+   "turns": [
+    "mal di schiena e ho perso il controllo della vescica"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "SI13 cauda equina inguine",
+   "lang": "it",
+   "turns": [
+    "mal di schiena e non sento più l'inguine"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "suicide it farla finita",
+   "lang": "it",
+   "turns": [
+    "voglio farla finita"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "suicide it vorrei morire",
+   "lang": "it",
+   "turns": [
+    "vorrei morire"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "suicide it farmi del male",
+   "lang": "it",
+   "turns": [
+    "penso di farmi del male"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "suicide en kill myself",
+   "lang": "en",
+   "turns": [
+    "I want to kill myself"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "suicide en end it all",
+   "lang": "en",
+   "turns": [
+    "I just want to end it all tonight"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "suicide en dont want to live",
+   "lang": "en",
+   "turns": [
+    "I don't want to live anymore"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "suicide ro vreau sa mor",
+   "lang": "ro",
+   "turns": [
+    "vreau să mor, nu mai vreau să trăiesc"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "suicide ar",
+   "lang": "ar",
+   "turns": [
+    "أريد أن أموت، أريد أن أنهي حياتي"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "suicide es quiero morir",
+   "lang": "es",
+   "turns": [
+    "quiero morir, quiero quitarme la vida"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "suicide fa",
+   "lang": "fa",
+   "turns": [
+    "می‌خواهم بمیرم، می‌خواهم خودکشی کنم"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "suicide zh",
+   "lang": "zh",
+   "turns": [
+    "我不想活了,我想自杀"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "chest en",
+   "lang": "en",
+   "turns": [
+    "I have severe chest pain and my left arm is numb"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "chest ro",
+   "lang": "ro",
+   "turns": [
+    "am o durere puternică în piept și îmi lipsește aerul"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "chest ar",
+   "lang": "ar",
+   "turns": [
+    "عندي ألم شديد في الصدر وصعوبة في التنفس"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "chest es",
+   "lang": "es",
+   "turns": [
+    "tengo un dolor fuerte en el pecho y me falta el aire"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "chest fa",
+   "lang": "fa",
+   "turns": [
+    "درد شدید قفسه سینه دارم و نفس کشیدن سخت است"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "chest zh",
+   "lang": "zh",
+   "turns": [
+    "我胸口剧烈疼痛,喘不过气"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "stroke en",
+   "lang": "en",
+   "turns": [
+    "my mother's face is drooping and her speech is slurred"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "stroke es",
+   "lang": "es",
+   "turns": [
+    "a mi padre se le cae la cara y habla raro"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "breath ro",
+   "lang": "ro",
+   "turns": [
+    "nu pot respira"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "bleed en",
+   "lang": "en",
+   "turns": [
+    "heavy bleeding and I feel faint"
+   ],
+   "kind": "extra"
+  },
+  {
+   "id": "faint ar",
+   "lang": "ar",
+   "turns": [
+    "أغمي علي مرتين اليوم"
+   ],
+   "kind": "extra"
+  }
+ ],
+ "negatives": [
+  {
+   "id": "NEG no chest pain",
+   "lang": "it",
+   "turns": [
+    "non ho dolore al petto, solo mal di schiena"
+   ]
+  },
+  {
+   "id": "NEG mal di schiena",
+   "lang": "it",
+   "turns": [
+    "mi fa male la schiena da una settimana"
+   ]
+  },
+  {
+   "id": "NEG knee en",
+   "lang": "en",
+   "turns": [
+    "my knee hurts since monday"
+   ]
+  },
+  {
+   "id": "NEG ro back",
+   "lang": "ro",
+   "turns": [
+    "mă doare spatele de o săptămână"
+   ]
+  },
+  {
+   "id": "NEG zh palpit",
+   "lang": "zh",
+   "turns": [
+    "我晚上心跳很快"
+   ]
+  },
+  {
+   "id": "NEG prenota",
+   "lang": "it",
+   "turns": [
+    "vorrei prenotare una visita domani"
+   ]
+  },
+  {
+   "id": "NEG past stroke",
+   "lang": "it",
+   "turns": [
+    "Anni fa ho avuto un ictus, ora ho mal di schiena"
+   ]
+  },
+  {
+   "id": "NEG cousin fainted yesterday",
+   "lang": "it",
+   "turns": [
+    "Mio cugino è svenuto ieri, oggi sta bene, io ho mal di testa"
+   ]
+  },
+  {
+   "id": "NEG fear of infarct",
+   "lang": "it",
+   "turns": [
+    "Ho paura di avere un infarto ma sto bene, vorrei un controllo"
+   ]
+  },
+  {
+   "id": "NEG dog breathing",
+   "lang": "it",
+   "turns": [
+    "Il mio cane respira male, io ho bisogno di una visita per il ginocchio"
+   ]
+  }
+ ]
+}

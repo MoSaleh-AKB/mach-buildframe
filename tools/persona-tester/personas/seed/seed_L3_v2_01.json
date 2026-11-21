@@ -1,0 +1,33 @@
+{
+ "id": "seed_L3_v2_01",
+ "title": "Booking confirm then check-in",
+ "title_fa": "تأیید نوبت و بعد حضور",
+ "agent": "hospital",
+ "level": 3,
+ "variant": 2,
+ "author": "seed",
+ "smoke": true,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev"
+  },
+  {
+   "as": "citizen",
+   "text": "checkin booking_id=bk-1 ledger_ref=c-2 Sono arrivato allo sportello."
+  },
+  {
+   "as": "ledger",
+   "text": "checked_in booking_id=bk-1 citizen=citizen:local/dev"
+  }
+ ],
+ "expect": [
+  "act_word:booking.receipt",
+  "act_word:checkin"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

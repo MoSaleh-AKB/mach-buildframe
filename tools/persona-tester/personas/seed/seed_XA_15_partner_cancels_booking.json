@@ -1,0 +1,27 @@
+{
+ "id": "seed_XA_15_partner_cancels_booking",
+ "title": "Other team's agent cancels at our booking centre",
+ "title_fa": "عامل دیگر در بوکینگ‌سنتر ما لغو می‌کند",
+ "agent": "booking_centre",
+ "level": 6,
+ "variant": 3,
+ "author": "seed",
+ "xa": true,
+ "smoke": false,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "cancel offer_id=of-slot-local-1 reason=slot_gone request_id=xr-115"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_protocol_tokens",
+  "xa_no_citizen_data"
+ ],
+ "bait_values": [],
+ "notes": "A cancel for an offer we never made must not invent a citizen message or a new booking."
+}

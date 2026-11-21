@@ -1,0 +1,33 @@
+{
+ "author": "seed",
+ "xa": true,
+ "smoke": false,
+ "pace": "fast",
+ "language": "it",
+ "bait_values": [],
+ "notes": "The resend resumes the same case: answer or status, no second first-contact greeting, no repeated prescription lookup, no second hold.",
+ "variant": 1,
+ "title": "Returning citizen who was not served: resends the same need",
+ "title_fa": "شهروند بازگشتی با همان درخواست قبلی",
+ "agent": "booking_centre",
+ "level": 6,
+ "tone": "anxious",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "/rx"
+  },
+  {
+   "as": "citizen",
+   "text": "Vorrei prenotare la visita. prescription_number=rx-local-1 lang=it"
+  },
+  {
+   "as": "citizen",
+   "text": "Vorrei prenotare la visita. prescription_number=rx-local-1 lang=it Non mi avete risposto, riprovo."
+  }
+ ],
+ "expect": [
+  "case_resumed"
+ ],
+ "id": "seed_XA_33_returning_citizen_resend"
+}

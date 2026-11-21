@@ -1,0 +1,14 @@
+agent_id: agent:y6hxsd766sys
+team: team:buildframe
+name: booking_centre
+version: 2.18.1
+cap_versions:
+  - "1.0"
+profiles:
+  - mhm/1.0
+role: booking_centre
+capabilities:
+  - booking_centre
+no_clinical_advice: true
+endpoints:
+  mailbox: agent:y6hxsd766sys

@@ -1,0 +1,30 @@
+{
+ "id": "seed_XA_07_bc_specialist_no_slot",
+ "title": "Other booking centre, window already full",
+ "title_fa": "پنجره‌ی زمانی پر است",
+ "agent": "specialist",
+ "level": 5,
+ "variant": 2,
+ "author": "seed",
+ "xa": true,
+ "smoke": false,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "need.request service_type=specialist_care.cardiology procedure=VIS-CARD priority=B request_id=xr-107 giorni=lun"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_one_reply",
+  "xa_request_id_echoed",
+  "xa_no_citizen_data",
+  "xa_protocol_tokens",
+  "act_word:cancel"
+ ],
+ "bait_values": [],
+ "notes": "When nothing fits, say it with cancel reason=..., never stay silent."
+}

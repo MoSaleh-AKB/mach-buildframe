@@ -1,0 +1,24 @@
+{
+ "id": "seed_L2_v2_01",
+ "title": "Non-native speaker, knee",
+ "title_fa": "غیربومی، زانو",
+ "agent": "gp",
+ "level": 2,
+ "variant": 2,
+ "author": "seed",
+ "smoke": false,
+ "pace": "fast",
+ "tone": "simple non-native Italian",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "Ciao, io no parlo bene italiano. Mio ginocchio fa male, molto, quando cammino."
+  }
+ ],
+ "expect": [
+  "act_word:prescription"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

@@ -1,0 +1,29 @@
+{
+ "id": "seed_L7_v3_01",
+ "title": "4xx on hold: slot already taken",
+ "title_fa": "خطای ۴xx روی hold: slot گرفته شده",
+ "agent": "hospital",
+ "level": 7,
+ "variant": 3,
+ "author": "seed",
+ "smoke": false,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev"
+  },
+  {
+   "as": "ledger",
+   "text": "refused op=hold code=SLOT_TAKEN"
+  }
+ ],
+ "expect": [
+  "no_retry_on_4xx",
+  "rebook_after_cancel"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

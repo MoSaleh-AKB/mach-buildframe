@@ -1,0 +1,29 @@
+{
+ "id": "seed_XA_04_bc_specialist_urgent",
+ "title": "Other booking centre, cardiology urgent",
+ "title_fa": "درخواست فوری قلب از تیم دیگر",
+ "agent": "specialist",
+ "level": 5,
+ "variant": 1,
+ "author": "seed",
+ "xa": true,
+ "smoke": false,
+ "pace": "fast",
+ "tone": "anxious",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "need.request service_type=specialist_care.cardiology procedure=VIS-CARD priority=U request_id=xr-104 Paziente instabile, serve oggi"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_one_reply",
+  "xa_request_id_echoed",
+  "xa_no_citizen_data",
+  "xa_protocol_tokens"
+ ],
+ "bait_values": [],
+ "notes": "Same rules as a normal request, within 10 s; never ask the other team for the patient's data."
+}

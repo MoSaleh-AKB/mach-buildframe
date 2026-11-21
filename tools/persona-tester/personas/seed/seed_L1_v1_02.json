@@ -1,0 +1,24 @@
+{
+ "id": "seed_L1_v1_02",
+ "title": "Elderly knee pain on stairs",
+ "title_fa": "زانودرد سالمند",
+ "agent": "gp",
+ "level": 1,
+ "variant": 1,
+ "author": "seed",
+ "smoke": false,
+ "pace": "fast",
+ "tone": "boomer",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "Salve, sono un signore di 78 anni, il ginocchio mi fa male quando faccio le scale per andare a casa."
+  }
+ ],
+ "expect": [
+  "act_word:prescription"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

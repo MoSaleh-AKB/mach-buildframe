@@ -1,0 +1,33 @@
+{
+ "id": "seed_L8_v3_01",
+ "title": "Rule P1: prescription expired at commit",
+ "title_fa": "قانون P1: نسخه منقضی",
+ "agent": "booking_centre",
+ "level": 8,
+ "variant": 3,
+ "author": "seed",
+ "smoke": false,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "/rx"
+  },
+  {
+   "as": "citizen",
+   "text": "Vorrei prenotare. prescription_number=rx-local-1 lang=it"
+  },
+  {
+   "as": "ledger",
+   "text": "refused op=commit code=PRESCRIPTION_EXPIRED"
+  }
+ ],
+ "expect": [
+  "no_retry_on_4xx",
+  "data_request_has_purpose"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

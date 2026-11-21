@@ -1,0 +1,35 @@
+{
+ "id": "seed_XA_28_slow_partner_confirm",
+ "title": "Slow partner: confirms 20-60 s after our offer",
+ "title_fa": "همکار کند: بعد از ۲۰ تا ۶۰ ثانیه تأیید می‌کند",
+ "agent": "hospital",
+ "level": 7,
+ "variant": 1,
+ "author": "seed",
+ "xa": true,
+ "smoke": false,
+ "pace": "slow",
+ "tone": "submissive",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "need.request service_type=hospital.physiatry procedure=VIS-FIS priority=D request_id=xr-128"
+  },
+  {
+   "as": "agent",
+   "text": "confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_one_reply",
+  "xa_request_id_echoed",
+  "xa_no_citizen_data",
+  "xa_protocol_tokens",
+  "xa_receipt_to_confirmer",
+  "act_word:booking.receipt"
+ ],
+ "bait_values": [],
+ "notes": "A late confirm is still booked and gets its receipt; no state lost between turns; fast reply holds each time. LOCAL LIMIT: the stand-in Ledger gives no slots, so the confirm uses the kit example ids (of-slot-local-1); on the real city it must name an offer_id we sent."
+}

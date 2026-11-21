@@ -1,0 +1,29 @@
+{
+ "id": "seed_XA_05_bc_family_normal",
+ "title": "Other booking centre asks our consultorio (direct access)",
+ "title_fa": "بوکینگ‌سنتر دیگر از consultorio ما slot می‌خواهد",
+ "agent": "family_counseling",
+ "level": 4,
+ "variant": 1,
+ "author": "seed",
+ "xa": true,
+ "smoke": true,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "need.request service_type=family_counseling.gynecology procedure=CONS-GIN priority=D request_id=xr-105"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_one_reply",
+  "xa_request_id_echoed",
+  "xa_no_citizen_data",
+  "xa_protocol_tokens"
+ ],
+ "bait_values": [],
+ "notes": "Direct access: no prescription asked from the partner; one message with offers or a cancel."
+}

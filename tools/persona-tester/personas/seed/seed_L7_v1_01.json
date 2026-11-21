@@ -1,0 +1,32 @@
+{
+ "id": "seed_L7_v1_01",
+ "title": "Partner unreachable (TARGET_NOT_VISIBLE)",
+ "title_fa": "همکار در دسترس نیست",
+ "agent": "booking_centre",
+ "level": 7,
+ "variant": 1,
+ "author": "seed",
+ "smoke": false,
+ "pace": "fast",
+ "tone": "hasty",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "/rx"
+  },
+  {
+   "as": "citizen",
+   "text": "Prenotazione. prescription_number=rx-local-1 lang=it"
+  },
+  {
+   "as": "ledger",
+   "text": "refused op=say code=TARGET_NOT_VISIBLE"
+  }
+ ],
+ "expect": [
+  "no_retry_on_4xx"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

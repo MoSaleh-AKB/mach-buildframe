@@ -1,0 +1,32 @@
+{
+ "id": "seed_speed_01",
+ "title": "Speed: three quick messages in a row",
+ "title_fa": "سرعت: سه پیام پشت سر هم",
+ "agent": "gp",
+ "level": 1,
+ "variant": 1,
+ "author": "seed",
+ "smoke": false,
+ "pace": "fast",
+ "tone": "hasty",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "ho mal di schiena"
+  },
+  {
+   "as": "citizen",
+   "text": "ciao? ci siete?"
+  },
+  {
+   "as": "citizen",
+   "text": "mi serve la ricetta per il mal di schiena, grazie"
+  }
+ ],
+ "expect": [
+  "act_word:prescription"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

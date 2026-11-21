@@ -1,0 +1,626 @@
+{
+ "list": {
+  "rubric": "rubric.v1",
+  "journeys": [
+   {
+    "need_id": "need:W01QQQ-synth-001",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-001",
+    "level": 1,
+    "state": "failed",
+    "updated_at": "2026-11-20T21:05:30Z"
+   },
+   {
+    "need_id": "need:W01QQQ-synth-002",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-002",
+    "level": 1,
+    "state": "failed",
+    "updated_at": "2026-11-20T21:09:30Z"
+   },
+   {
+    "need_id": "need:W01QQQ-synth-003",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-003",
+    "level": 1,
+    "state": "failed",
+    "updated_at": "2026-11-20T21:14:30Z"
+   },
+   {
+    "need_id": "need:W01QQQ-synth-004",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-004",
+    "level": 1,
+    "state": "done",
+    "updated_at": "2026-11-20T21:20:30Z"
+   },
+   {
+    "need_id": "need:W01QQQ-synth-005",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-005",
+    "level": 1,
+    "state": "done",
+    "updated_at": "2026-11-20T21:26:30Z"
+   },
+   {
+    "need_id": "need:W01QQQ-synth-006",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-006",
+    "level": 1,
+    "state": "done",
+    "updated_at": "2026-11-20T21:33:30Z"
+   },
+   {
+    "need_id": "need:W01QQQ-synth-007",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-007",
+    "level": 1,
+    "state": "failed",
+    "updated_at": "2026-11-20T21:38:30Z"
+   },
+   {
+    "need_id": "need:W01QQQ-synth-008",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-008",
+    "level": 1,
+    "state": "done",
+    "updated_at": "2026-11-20T21:44:30Z"
+   },
+   {
+    "need_id": "need:W01QQQ-synth-009",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-009",
+    "level": 1,
+    "state": "open",
+    "updated_at": "2026-11-20T21:50:30Z"
+   }
+  ]
+ },
+ "details": {
+  "need:W01QQQ-synth-001": {
+   "journey": {
+    "need_id": "need:W01QQQ-synth-001",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-001",
+    "level": 1,
+    "state": "failed",
+    "updated_at": "2026-11-20T21:05:30Z"
+   },
+   "messages": [
+    {
+     "msg_id": "m1",
+     "sent_at": "2026-11-20T21:01:00Z",
+     "type": "need",
+     "from": "citizen:asst-centro-001",
+     "to": "agent:y6hxsd766sys",
+     "body": {
+      "text": "Ho la ricetta per una ecografia, quando posso?"
+     }
+    },
+    {
+     "msg_id": "m2",
+     "sent_at": "2026-11-20T21:02:00Z",
+     "type": "data.request",
+     "from": "agent:y6hxsd766sys",
+     "to": "citizen:asst-centro-001",
+     "body": {
+      "text": "purpose=preferences"
+     }
+    }
+   ],
+   "verdict": {
+    "record_id": "rec-synth-001",
+    "time": "2026-11-20T21:05:40Z",
+    "rubric": "rubric.v1",
+    "rule_versions": [],
+    "facts": [],
+    "answer_set": {
+     "size": 3,
+     "pref_size": 1,
+     "effective_size": 2
+    },
+    "rows": [
+     {
+      "row": "booking.none",
+      "rater": "citizen:asst-centro-001",
+      "subject": "agent:y6hxsd766sys",
+      "score": -1,
+      "reason": "no_booking"
+     }
+    ]
+   },
+   "ratings": [],
+   "review": {
+    "record_id": "rev-synth-001",
+    "fault": null,
+    "agents": [
+     {
+      "agent_id": "agent:y6hxsd766sys",
+      "proactivity": -1,
+      "collaboration": 0,
+      "domain": 0,
+      "notes": {
+       "proactivity": "Il centro ha chiesto preferenze e poi nessuna offerta, il cittadino e' rimasto senza risposta."
+      },
+      "evidence": {}
+     }
+    ]
+   }
+  },
+  "need:W01QQQ-synth-002": {
+   "journey": {
+    "need_id": "need:W01QQQ-synth-002",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-002",
+    "level": 1,
+    "state": "failed",
+    "updated_at": "2026-11-20T21:09:30Z"
+   },
+   "messages": [
+    {
+     "msg_id": "m1",
+     "sent_at": "2026-11-20T21:06:00Z",
+     "type": "need",
+     "from": "citizen:asst-centro-002",
+     "to": "agent:y6hxsd766sys",
+     "body": {
+      "text": "Serve una visita cardiologica"
+     }
+    },
+    {
+     "msg_id": "m2",
+     "sent_at": "2026-11-20T21:08:00Z",
+     "type": "info",
+     "from": "agent:y6hxsd766sys",
+     "to": "citizen:asst-centro-002",
+     "body": {
+      "text": "nessuno slot"
+     }
+    }
+   ],
+   "verdict": {
+    "record_id": "rec-synth-002",
+    "time": "2026-11-20T21:09:40Z",
+    "rubric": "rubric.v1",
+    "rule_versions": [],
+    "facts": [],
+    "answer_set": {
+     "size": 3,
+     "pref_size": 1,
+     "effective_size": 2
+    },
+    "rows": [
+     {
+      "row": "booking.no_alt",
+      "rater": "citizen:asst-centro-002",
+      "subject": "agent:y6hxsd766sys",
+      "score": -1,
+      "reason": "no_booking"
+     }
+    ]
+   },
+   "ratings": [],
+   "review": null
+  },
+  "need:W01QQQ-synth-003": {
+   "journey": {
+    "need_id": "need:W01QQQ-synth-003",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-003",
+    "level": 1,
+    "state": "failed",
+    "updated_at": "2026-11-20T21:14:30Z"
+   },
+   "messages": [
+    {
+     "msg_id": "m1",
+     "sent_at": "2026-11-20T21:11:00Z",
+     "type": "need",
+     "from": "citizen:asst-centro-003",
+     "to": "agent:pv3a0t3tyqdq",
+     "body": {
+      "text": "Vorrei un colloquio al consultorio"
+     }
+    },
+    {
+     "msg_id": "m2",
+     "sent_at": "2026-11-20T21:12:00Z",
+     "type": "data.request",
+     "from": "agent:pv3a0t3tyqdq",
+     "to": "citizen:asst-centro-003",
+     "body": {
+      "text": "purpose=prescription prescription_number?"
+     }
+    }
+   ],
+   "verdict": {
+    "record_id": "rec-synth-003",
+    "time": "2026-11-20T21:14:40Z",
+    "rubric": "rubric.v1",
+    "rule_versions": [],
+    "facts": [],
+    "answer_set": {
+     "size": 3,
+     "pref_size": 1,
+     "effective_size": 2
+    },
+    "rows": [
+     {
+      "row": "consultorio.rx",
+      "rater": "citizen:asst-centro-003",
+      "subject": "agent:pv3a0t3tyqdq",
+      "score": -1,
+      "reason": "prescription_demanded"
+     }
+    ]
+   },
+   "ratings": [],
+   "review": {
+    "record_id": "rev-synth-003",
+    "fault": null,
+    "agents": [
+     {
+      "agent_id": "agent:pv3a0t3tyqdq",
+      "proactivity": -1,
+      "collaboration": 0,
+      "domain": 0,
+      "notes": {
+       "proactivity": "Ha chiesto la ricetta al consultorio, risposta brusca con solo token."
+      },
+      "evidence": {}
+     }
+    ]
+   }
+  },
+  "need:W01QQQ-synth-004": {
+   "journey": {
+    "need_id": "need:W01QQQ-synth-004",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-004",
+    "level": 1,
+    "state": "done",
+    "updated_at": "2026-11-20T21:20:30Z"
+   },
+   "messages": [
+    {
+     "msg_id": "m1",
+     "sent_at": "2026-11-20T21:15:00Z",
+     "type": "need",
+     "from": "citizen:asst-centro-004",
+     "to": "agent:jmqwr12vy2j6",
+     "body": {
+      "text": "Ho mal di schiena da settimane"
+     }
+    },
+    {
+     "msg_id": "m2",
+     "sent_at": "2026-11-20T21:15:00Z",
+     "type": "prescription",
+     "from": "agent:jmqwr12vy2j6",
+     "to": "citizen:asst-centro-004",
+     "body": {
+      "text": "procedure=RX_SPINE priority=D"
+     }
+    }
+   ],
+   "verdict": {
+    "record_id": "rec-synth-004",
+    "time": "2026-11-20T21:20:40Z",
+    "rubric": "rubric.v1",
+    "rule_versions": [],
+    "facts": [],
+    "answer_set": {
+     "size": 3,
+     "pref_size": 1,
+     "effective_size": 2
+    },
+    "rows": []
+   },
+   "ratings": [
+    {
+     "record_id": "rat-4",
+     "rater": "citizen:asst-centro-004",
+     "subject": "agent:jmqwr12vy2j6",
+     "score": 2,
+     "reason": "prescription_ok"
+    }
+   ],
+   "review": {
+    "record_id": "rev-synth-004",
+    "fault": null,
+    "agents": [
+     {
+      "agent_id": "agent:jmqwr12vy2j6",
+      "proactivity": 1,
+      "collaboration": 1,
+      "domain": 0,
+      "notes": {
+       "proactivity": "Ha spiegato i passi successivi."
+      },
+      "evidence": {}
+     }
+    ]
+   }
+  },
+  "need:W01QQQ-synth-005": {
+   "journey": {
+    "need_id": "need:W01QQQ-synth-005",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-005",
+    "level": 1,
+    "state": "done",
+    "updated_at": "2026-11-20T21:26:30Z"
+   },
+   "messages": [
+    {
+     "msg_id": "m1",
+     "sent_at": "2026-11-20T21:21:00Z",
+     "type": "need",
+     "from": "citizen:asst-centro-005",
+     "to": "agent:jmqwr12vy2j6",
+     "body": {
+      "text": "Ho una tosse forte"
+     }
+    },
+    {
+     "msg_id": "m2",
+     "sent_at": "2026-11-20T21:25:00Z",
+     "type": "prescription",
+     "from": "agent:jmqwr12vy2j6",
+     "to": "citizen:asst-centro-005",
+     "body": {
+      "text": "procedure=RX_CHEST priority=U"
+     }
+    }
+   ],
+   "verdict": {
+    "record_id": "rec-synth-005",
+    "time": "2026-11-20T21:26:40Z",
+    "rubric": "rubric.v1",
+    "rule_versions": [],
+    "facts": [],
+    "answer_set": {
+     "size": 3,
+     "pref_size": 1,
+     "effective_size": 2
+    },
+    "rows": [
+     {
+      "row": "gp.priority",
+      "rater": "citizen:asst-centro-005",
+      "subject": "agent:jmqwr12vy2j6",
+      "score": -1,
+      "reason": "wrong_priority"
+     }
+    ]
+   },
+   "ratings": [],
+   "review": {
+    "record_id": "rev-synth-005",
+    "fault": null,
+    "agents": [
+     {
+      "agent_id": "agent:jmqwr12vy2j6",
+      "proactivity": -1,
+      "collaboration": 0,
+      "domain": 0,
+      "notes": {
+       "proactivity": "Risposta arrivata in ritardo, quattro minuti dopo."
+      },
+      "evidence": {}
+     }
+    ]
+   }
+  },
+  "need:W01QQQ-synth-006": {
+   "journey": {
+    "need_id": "need:W01QQQ-synth-006",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-006",
+    "level": 1,
+    "state": "done",
+    "updated_at": "2026-11-20T21:33:30Z"
+   },
+   "messages": [
+    {
+     "msg_id": "m1",
+     "sent_at": "2026-11-20T21:28:00Z",
+     "type": "checkin",
+     "from": "citizen:asst-centro-006",
+     "to": "agent:dqfw9nh15dn4",
+     "body": {
+      "text": "booking_id=b6"
+     }
+    },
+    {
+     "msg_id": "m2",
+     "sent_at": "2026-11-20T21:30:00Z",
+     "type": "info",
+     "from": "agent:dqfw9nh15dn4",
+     "to": "citizen:asst-centro-006",
+     "body": {
+      "text": "visita fatta"
+     }
+    }
+   ],
+   "verdict": {
+    "record_id": "rec-synth-006",
+    "time": "2026-11-20T21:33:40Z",
+    "rubric": "rubric.v1",
+    "rule_versions": [],
+    "facts": [],
+    "answer_set": {
+     "size": 3,
+     "pref_size": 1,
+     "effective_size": 2
+    },
+    "rows": [
+     {
+      "row": "spec.report",
+      "rater": "citizen:asst-centro-006",
+      "subject": "agent:dqfw9nh15dn4",
+      "score": -1,
+      "reason": "report_missing"
+     }
+    ]
+   },
+   "ratings": [],
+   "review": null
+  },
+  "need:W01QQQ-synth-007": {
+   "journey": {
+    "need_id": "need:W01QQQ-synth-007",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-007",
+    "level": 1,
+    "state": "failed",
+    "updated_at": "2026-11-20T21:38:30Z"
+   },
+   "messages": [
+    {
+     "msg_id": "m1",
+     "sent_at": "2026-11-20T21:34:00Z",
+     "type": "need",
+     "from": "citizen:asst-centro-007",
+     "to": "agent:otherteam/booking",
+     "body": {
+      "text": "prenotazione"
+     }
+    },
+    {
+     "msg_id": "m2",
+     "sent_at": "2026-11-20T21:35:00Z",
+     "type": "info",
+     "from": "agent:otherteam/booking",
+     "to": "citizen:asst-centro-007",
+     "body": {
+      "text": "..."
+     }
+    }
+   ],
+   "verdict": {
+    "record_id": "rec-synth-007",
+    "time": "2026-11-20T21:38:40Z",
+    "rubric": "rubric.v1",
+    "rule_versions": [],
+    "facts": [],
+    "answer_set": {
+     "size": 3,
+     "pref_size": 1,
+     "effective_size": 2
+    },
+    "rows": [
+     {
+      "row": "booking.none",
+      "rater": "citizen:asst-centro-007",
+      "subject": "agent:otherteam/booking",
+      "score": -1,
+      "reason": "no_booking"
+     }
+    ]
+   },
+   "ratings": [],
+   "review": null
+  },
+  "need:W01QQQ-synth-008": {
+   "journey": {
+    "need_id": "need:W01QQQ-synth-008",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-008",
+    "level": 1,
+    "state": "done",
+    "updated_at": "2026-11-20T21:44:30Z"
+   },
+   "messages": [
+    {
+     "msg_id": "m1",
+     "sent_at": "2026-11-20T21:40:00Z",
+     "type": "need",
+     "from": "citizen:asst-centro-008",
+     "to": "agent:y6hxsd766sys",
+     "body": {
+      "text": "ricetta per risonanza"
+     }
+    },
+    {
+     "msg_id": "m2",
+     "sent_at": "2026-11-20T21:42:00Z",
+     "type": "booking.receipt",
+     "from": "agent:y6hxsd766sys",
+     "to": "citizen:asst-centro-008",
+     "body": {
+      "text": "booking_id=b8"
+     }
+    }
+   ],
+   "verdict": {
+    "record_id": "rec-synth-008",
+    "time": "2026-11-20T21:44:40Z",
+    "rubric": "rubric.v1",
+    "rule_versions": [],
+    "facts": [],
+    "answer_set": {
+     "size": 3,
+     "pref_size": 1,
+     "effective_size": 2
+    },
+    "rows": [
+     {
+      "row": "booking.S_pref",
+      "rater": "citizen:asst-centro-008",
+      "subject": "agent:y6hxsd766sys",
+      "score": 2,
+      "reason": "s_pref"
+     }
+    ]
+   },
+   "ratings": [],
+   "review": {
+    "record_id": "rev-synth-008",
+    "fault": null,
+    "agents": [
+     {
+      "agent_id": "agent:y6hxsd766sys",
+      "proactivity": -1,
+      "collaboration": 0,
+      "domain": 0,
+      "notes": {
+       "proactivity": "Corretto ma passivo: ha fatto solo quanto richiesto, nessun promemoria."
+      },
+      "evidence": {}
+     }
+    ]
+   }
+  },
+  "need:W01QQQ-synth-009": {
+   "journey": {
+    "need_id": "need:W01QQQ-synth-009",
+    "wave_id": "W01QQQ",
+    "citizen": "citizen:asst-centro-009",
+    "level": 1,
+    "state": "open",
+    "updated_at": "2026-11-20T21:50:30Z"
+   },
+   "messages": [
+    {
+     "msg_id": "m1",
+     "sent_at": "2026-11-20T21:49:00Z",
+     "type": "checkin",
+     "from": "citizen:asst-centro-009",
+     "to": "agent:r8yprrs0e8be",
+     "body": {
+      "text": "booking_id=b9"
+     }
+    }
+   ],
+   "verdict": null,
+   "ratings": [],
+   "review": null
+  }
+ },
+ "assignment": {
+  "roles": []
+ },
+ "pulled_at": "2026-11-20T21:55:00Z",
+ "synthetic": true
+}

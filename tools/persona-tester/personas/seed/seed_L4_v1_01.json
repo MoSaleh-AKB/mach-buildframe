@@ -1,0 +1,33 @@
+{
+ "id": "seed_L4_v1_01",
+ "title": "Only the partner ASST has a slot",
+ "title_fa": "فقط ASST همکار نوبت دارد",
+ "agent": "booking_centre",
+ "level": 4,
+ "variant": 1,
+ "author": "seed",
+ "smoke": false,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "/rx"
+  },
+  {
+   "as": "citizen",
+   "text": "Vorrei prenotare la visita. prescription_number=rx-local-1 lang=it"
+  },
+  {
+   "as": "agent",
+   "text": "offer offer_id=p-1 slot_id=S-P1 doctor_id=D-9 facility=agent:t09/hospital procedure=VIS-CARD agenda_date=2026-11-24T09:00:00Z"
+  }
+ ],
+ "expect": [
+  "offers_in_one_message",
+  "no_address_or_profile_leak"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

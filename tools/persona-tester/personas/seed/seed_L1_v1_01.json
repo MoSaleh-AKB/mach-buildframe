@@ -1,0 +1,24 @@
+{
+ "id": "seed_L1_v1_01",
+ "title": "Formal back pain, keyword in text",
+ "title_fa": "کمردرد با لحن رسمی",
+ "agent": "gp",
+ "level": 1,
+ "variant": 1,
+ "author": "seed",
+ "smoke": true,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "Buongiorno dottore, da una settimana ho mal di schiena e faccio fatica a stare seduto al lavoro."
+  }
+ ],
+ "expect": [
+  "act_word:prescription"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

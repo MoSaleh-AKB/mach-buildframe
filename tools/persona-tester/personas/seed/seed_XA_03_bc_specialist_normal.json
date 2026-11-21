@@ -1,0 +1,29 @@
+{
+ "id": "seed_XA_03_bc_specialist_normal",
+ "title": "Other booking centre asks our cardiology specialist (priority B)",
+ "title_fa": "بوکینگ‌سنتر دیگر از متخصص قلب ما slot می‌خواهد",
+ "agent": "specialist",
+ "level": 4,
+ "variant": 1,
+ "author": "seed",
+ "xa": true,
+ "smoke": true,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "need.request service_type=specialist_care.cardiology procedure=VIS-CARD priority=B request_id=xr-103"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_one_reply",
+  "xa_request_id_echoed",
+  "xa_no_citizen_data",
+  "xa_protocol_tokens"
+ ],
+ "bait_values": [],
+ "notes": "One offer message or one cancel with a reason; no report or citizen data."
+}

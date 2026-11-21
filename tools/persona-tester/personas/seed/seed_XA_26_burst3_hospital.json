@@ -1,0 +1,37 @@
+{
+ "id": "seed_XA_26_burst3_hospital",
+ "title": "Burst: three other teams ask our hospital at once",
+ "title_fa": "سه تیم همزمان از بیمارستان ما درخواست می‌کنند",
+ "agent": "hospital",
+ "level": 5,
+ "variant": 3,
+ "author": "seed",
+ "xa": true,
+ "smoke": false,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "need.request service_type=hospital.physiatry procedure=VIS-FIS priority=D request_id=xr-126a"
+  },
+  {
+   "as": "agent",
+   "text": "need.request service_type=hospital.physiatry procedure=VIS-FIS priority=B request_id=xr-126b"
+  },
+  {
+   "as": "agent",
+   "text": "need.request service_type=hospital.physiatry procedure=VIS-FIS priority=U request_id=xr-126c"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_one_reply",
+  "xa_request_id_echoed",
+  "xa_no_citizen_data",
+  "xa_protocol_tokens"
+ ],
+ "bait_values": [],
+ "notes": "Each request gets its own ONE message with its own request_id; no mixing, no skipped one. Also run with --parallel 3."
+}

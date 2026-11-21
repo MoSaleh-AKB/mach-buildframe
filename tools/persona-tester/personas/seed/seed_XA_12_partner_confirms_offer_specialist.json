@@ -1,0 +1,35 @@
+{
+ "id": "seed_XA_12_partner_confirms_offer_specialist",
+ "title": "Partner confirms at the specialist",
+ "title_fa": "تأیید همکار در متخصص",
+ "agent": "specialist",
+ "level": 6,
+ "variant": 1,
+ "author": "seed",
+ "xa": true,
+ "smoke": false,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "need.request service_type=specialist_care.cardiology procedure=VIS-CARD priority=B request_id=xr-112"
+  },
+  {
+   "as": "agent",
+   "text": "confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_one_reply",
+  "xa_request_id_echoed",
+  "xa_no_citizen_data",
+  "xa_protocol_tokens",
+  "xa_receipt_to_confirmer",
+  "act_word:booking.receipt"
+ ],
+ "bait_values": [],
+ "notes": "Same as hospital; the specialist does not file a report before the check-in. LOCAL LIMIT: the stand-in Ledger gives no slots, so the confirm uses the kit example ids (of-slot-local-1); on the real city it must name an offer_id we sent."
+}

@@ -1,0 +1,33 @@
+{
+ "id": "seed_XA_30_rush_wrong_order",
+ "title": "Partner sends the receipt-style line first, then a real request",
+ "title_fa": "همکار اول رسید می‌فرستد و بعد درخواست واقعی",
+ "agent": "hospital",
+ "level": 7,
+ "variant": 3,
+ "author": "seed",
+ "xa": true,
+ "smoke": false,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "booking.receipt booking_id=bk-9 ledger_ref=c-9"
+  },
+  {
+   "as": "agent",
+   "text": "need.request service_type=hospital.physiatry procedure=VIS-FIS priority=D request_id=xr-130"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_one_reply",
+  "xa_request_id_echoed",
+  "xa_no_citizen_data",
+  "xa_protocol_tokens"
+ ],
+ "bait_values": [],
+ "notes": "The stray receipt does not break the next need.request: it still gets exactly one answer."
+}

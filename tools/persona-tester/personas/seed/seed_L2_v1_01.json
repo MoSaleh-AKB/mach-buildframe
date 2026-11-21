@@ -1,0 +1,29 @@
+{
+ "id": "seed_L2_v1_01",
+ "title": "Anxious: only Mon/Wed, female doctor",
+ "title_fa": "نگران: فقط دوشنبه و چهارشنبه، پزشک زن",
+ "agent": "booking_centre",
+ "level": 2,
+ "variant": 1,
+ "author": "seed",
+ "smoke": false,
+ "pace": "fast",
+ "tone": "anxious",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "/rx"
+  },
+  {
+   "as": "citizen",
+   "text": "Ho paura di aspettare troppo... posso solo lunedì o mercoledì e preferirei una dottoressa. prescription_number=rx-local-1 days=mon/wed gender=f lang=it"
+  }
+ ],
+ "expect": [
+  "offers_in_one_message",
+  "data_request_has_purpose"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

@@ -1,0 +1,32 @@
+{
+ "id": "seed_XA_29_slow_partner_duplicate_confirm",
+ "title": "Slow partner repeats the confirm: one booking only",
+ "title_fa": "همکار کند confirm را دو بار می‌فرستد",
+ "agent": "hospital",
+ "level": 7,
+ "variant": 2,
+ "author": "seed",
+ "xa": true,
+ "smoke": false,
+ "pace": "slow",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev"
+  },
+  {
+   "as": "agent",
+   "text": "confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_protocol_tokens",
+  "xa_receipt_to_confirmer",
+  "no_double_booking"
+ ],
+ "bait_values": [],
+ "notes": "Idempotent: same offer_id/slot_id gives one hold/commit and one receipt. LOCAL LIMIT: the stand-in Ledger gives no slots, so the confirm uses the kit example ids (of-slot-local-1); on the real city it must name an offer_id we sent."
+}

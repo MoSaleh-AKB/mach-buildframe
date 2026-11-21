@@ -1,0 +1,4 @@
+This repository reuses code from the Milano Agentic City public kit:
+https://github.com/projectnandaitaly/mach-hackathon-kit
+Copyright (c) 2026 Project NANDA Italy, MIT License.
+asst/_shared/agent.py starts as an unchanged copy of the kit's templates/examples/agent.py.

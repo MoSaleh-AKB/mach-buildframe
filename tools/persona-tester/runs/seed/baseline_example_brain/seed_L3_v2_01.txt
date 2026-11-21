@@ -1,0 +1,139 @@
+# seed_L3_v2_01 | agent hospital | level 3 v2 | author seed | pace fast
+# Booking confirm then check-in
+
+## turns
+
+[1] agent: confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev
+    latency: 5.78s
+    -> agent:t07/hospital > city:ledger : hold slot_id=slot-local-1 citizen=citizen:local/dev prescription_number=rx-local-1 consent_ref=local-ok
+    -> agent:t07/hospital > city:ledger : commit hold_id=bk-1 consent_ref=local-ok fence=1 prescription_number=rx-local-1
+    -> agent:t07/hospital > citizen:local/dev : booking.receipt booking_id=bk-1 ledger_ref=c-2
+
+[2] citizen: checkin booking_id=bk-1 ledger_ref=c-2 Sono arrivato allo sportello.
+    latency: 5.78s
+    -> agent:t07/hospital > city:ledger : checkin booking_id=bk-1 citizen=citizen:local/dev
+
+[3] ledger: checked_in booking_id=bk-1 citizen=citizen:local/dev
+    latency: 0.00s
+    -> agent:t07/hospital > citizen:local/dev : checkin booking_id=bk-1
+
+## checks
+WARN replied_at_all: only internal messages: hospital > city:ledger : checkin booking_id=bk-1 citizen=citizen:local/dev
+PASS no_profile_leak: no personal fields sent to agents
+PASS ledger_before_citizen: Ledger writes come first
+WARN polite_human_sentence: hospital > citizen:local/dev : booking.receipt booking_id=bk-1 ledger_ref=c-2
+PASS fast_reply_under_10s: slowest turn 5.8s
+PASS act_word:booking.receipt: hospital > citizen:local/dev : booking.receipt booking_id=bk-1 ledger_ref=c-2
+PASS act_word:checkin: hospital > city:ledger : checkin booking_id=bk-1 citizen=citizen:local/dev
+
+## raw output
+   0.41 ╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── Local chat ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+   0.41 │                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              │
+   0.41 │         Agent  agent:t07/hospital                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            │
+   0.41 │          Part  hospital                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      │
+   0.41 │       Service  hospital.physiatry                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            │
+   0.41 │         Inbox  in-memory (not the city mailbox)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              │
+   0.41 │          Peer  agent:t05/osp-x                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               │
+   0.41 │        Reload  agent sources on change                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       │
+   0.41 │                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              │
+   0.41 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── Pick who you are, then a move, slash command, or sentence ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+   0.41 in   what you type     log  agent logs     out  what the agent answers
+   0.41 citizen >  sent to the model     agent >  the model's reply
+   0.41 
+   0.41 Who are you?  Type a number or a name. /as <name> switches later.
+   0.41   1  citizen - A citizen. A sentence is a need.
+   0.41   2  agent - Another agent. A sentence is a chat; put the act word in it.
+   0.41   3  ledger - The ledger. A sentence is its answer (held, committed, world, prescription).
+   0.41 
+   0.41   \changeCharacter  Back to the character menu.
+   0.41   \quitChat  Leave the chat and return to the shell.
+   0.41 in  agent
+   0.41 
+   0.41 Playing agent → hospital
+   0.41 Type a number, that slash command, or a sentence.
+   0.41 
+   0.41   1  confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1  Confirm a slot
+   0.41      An agent confirms of-slot-local-1. The brain reads confirm and the tokens.
+   0.41 
+   0.41   2  offer procedure=VIS-FIS  Offer a slot
+   0.41      An agent offers VIS-FIS. physiatry visit at the hospital; needs a prescription
+   0.41 
+   0.41   3  cancel offer_id=of-slot-local-1 reason=slot_gone  Cancel an offer
+   0.41      An agent withdraws of-slot-local-1.
+   0.41 
+   0.41   4  booking.receipt booking_id=bk-1 ledger_ref=c-1  Send a receipt
+   0.41      An agent sends the booking receipt.
+   0.41 
+   0.41 A sentence is a chat from an agent. Put the act word and its key=value tokens on that line.
+   0.41 
+   0.41   \changeCharacter  Back to the character menu.
+   0.41   \quitChat  Leave the chat and return to the shell.
+   0.41 in  confirm offer_id=of-slot-local-1 consent_ref=local-ok slot_id=slot-local-1 prescription_number=rx-local-1 citizen=citizen:local/dev
+   6.19 
+   6.19 out processed
+   6.19 
+   6.19     agent:t07/hospital > city:ledger : hold slot_id=slot-local-1 citizen=citizen:local/dev prescription_number=rx-local-1 consent_ref=local-ok
+   6.19 
+   6.19     agent:t07/hospital > city:ledger : commit hold_id=bk-1 consent_ref=local-ok fence=1 prescription_number=rx-local-1
+   6.19 
+   6.19     agent:t07/hospital > citizen:local/dev : booking.receipt booking_id=bk-1 ledger_ref=c-2 (wip)
+   6.19 
+   6.19     Ledger: held hold_id=bk-1 slot_id=slot-local-1 fence=1
+   6.19 
+   6.19     Ledger: committed booking_id=bk-1 ledger_ref=c-2 receipt=local
+   6.19 
+   6.19 in  /as citizen
+   6.19 
+   6.19 Playing citizen → hospital
+   6.19 Type a number, that slash command, or a sentence.
+   6.19 
+   6.19   1  /need  Ask the hospital
+   6.19      A need that is not a check-in. The hospital template holds the first peer from the Index. It does not offer its own VIS-FIS slot (the specialist template is the one that offers).
+   6.19 
+   6.19   2  /checkin bk-local-1  Check in
+   6.19      The hospital template records the check-in and confirms it. booking_id bk-local-1 is a local stand-in; the ledger accepts it in this chat.
+   6.19 
+   6.19   3  /emergency  Emergency
+   6.19      The template escalates and does not hold a peer.
+   6.19 
+   6.19 A sentence is a need.request. It carries your words only, not a symptom code or a prescription.
+   6.19 
+   6.19   \changeCharacter  Back to the character menu.
+   6.19   \quitChat  Leave the chat and return to the shell.
+   6.20 in  checkin booking_id=bk-1 ledger_ref=c-2 Sono arrivato allo sportello.
+  11.97 
+  11.97 out processed
+  11.97 
+  11.97     agent:t07/hospital > city:ledger : checkin booking_id=bk-1 citizen=citizen:local/dev
+  11.97 
+  11.97     Ledger: local ledger: I read help, world, hold slot_id=, commit hold_id=, prescription prescription_number=. The city Ledger reads every operation.
+  11.97 
+  11.97 in  /as ledger
+  11.97 
+  11.97 Playing ledger → hospital
+  11.97 Type a number, that slash command, or a sentence.
+  11.97 
+  11.97   1  held hold_id=bk-1 slot_id=slot-local-1 fence=1  Hold accepted
+  11.97      The ledger held slot-local-1.
+  11.97 
+  11.97   2  committed booking_id=bk-1 ledger_ref=c-1 receipt=local  Booking committed
+  11.97      The ledger committed the hold.
+  11.97 
+  11.97   3  prescription prescription_number=rx-local-1  Prescription on file
+  11.97      The ledger returns rx-local-1 for VIS-FIS.
+  11.97 
+  11.97   4  world slots=1  World slice
+  11.97      One local slot, in the shape a world answer uses.
+  11.97 
+  11.97 A sentence is a ledger answer. The brain reads the first word, such as held, committed, world, or prescription.
+  11.97 
+  11.97   \changeCharacter  Back to the character menu.
+  11.97   \quitChat  Leave the chat and return to the shell.
+  11.97 in  checked_in booking_id=bk-1 citizen=citizen:local/dev
+  11.97 
+  11.97 out processed
+  11.97 
+  11.98     agent:t07/hospital > citizen:local/dev : checkin booking_id=bk-1 (wip)
+  11.98 
+  11.98 in  /quit
+  11.98 ·  Goodbye

@@ -1,0 +1,32 @@
+{
+ "id": "seed_L6_v2_01",
+ "title": "fault.cancel right after the first booking",
+ "title_fa": "لغو بلافاصله بعد از اولین نوبت",
+ "agent": "booking_centre",
+ "level": 6,
+ "variant": 2,
+ "author": "seed",
+ "smoke": true,
+ "pace": "fast",
+ "tone": "anxious",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "/rx"
+  },
+  {
+   "as": "citizen",
+   "text": "Vorrei prenotare. prescription_number=rx-local-1 lang=it"
+  },
+  {
+   "as": "agent",
+   "text": "cancel offer_id=of-slot-local-1 reason=fault.cancel"
+  }
+ ],
+ "expect": [
+  "rebook_after_cancel"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

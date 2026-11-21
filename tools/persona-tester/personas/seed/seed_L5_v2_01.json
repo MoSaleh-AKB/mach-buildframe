@@ -1,0 +1,28 @@
+{
+ "id": "seed_L5_v2_01",
+ "title": "Impossible constraints: only Sunday",
+ "title_fa": "شرط ناممکن: فقط یکشنبه",
+ "agent": "booking_centre",
+ "level": 5,
+ "variant": 2,
+ "author": "seed",
+ "smoke": false,
+ "pace": "fast",
+ "tone": "polemic",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "/rx"
+  },
+  {
+   "as": "citizen",
+   "text": "Posso venire SOLO di domenica sera, non insistete. prescription_number=rx-local-1 days=sun lang=it"
+  }
+ ],
+ "expect": [
+  "offers_in_one_message"
+ ],
+ "bait_values": [],
+ "notes": "Correct: no booking + relaxed alternative (rubric 0, not -1)."
+}

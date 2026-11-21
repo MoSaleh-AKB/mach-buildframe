@@ -1,0 +1,10 @@
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Never copy ~/.config/city/ (team session, controller key, LLM Gateway key) into this repo.
+.config/
+magic_pass_report.txt
+tools/fake-city/_magic_slowledger_*.py

@@ -1,0 +1,30 @@
+{
+ "id": "seed_XA_06_bc_hospital_no_slot",
+ "title": "Other booking centre asks for a procedure we do not run (no slot)",
+ "title_fa": "درخواست رویه‌ای که ما نداریم: slot خالی نیست",
+ "agent": "hospital",
+ "level": 5,
+ "variant": 2,
+ "author": "seed",
+ "xa": true,
+ "smoke": false,
+ "pace": "fast",
+ "tone": "formal",
+ "language": "it",
+ "turns": [
+  {
+   "as": "agent",
+   "text": "need.request service_type=hospital.physiatry procedure=VIS-DERM priority=B request_id=xr-106"
+  }
+ ],
+ "expect": [
+  "xa_fast_reply",
+  "xa_one_reply",
+  "xa_request_id_echoed",
+  "xa_no_citizen_data",
+  "xa_protocol_tokens",
+  "act_word:cancel"
+ ],
+ "bait_values": [],
+ "notes": "No slot: cancel reason=no_capacity (or another reason) in ONE message, still polite, request_id kept."
+}

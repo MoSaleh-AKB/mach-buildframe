@@ -1,0 +1,24 @@
+{
+ "id": "seed_L3_v1_01",
+ "title": "Free text: racing heart, no keyword",
+ "title_fa": "متن آزاد: تپش قلب بدون کلیدواژه",
+ "agent": "gp",
+ "level": 3,
+ "variant": 1,
+ "author": "seed",
+ "smoke": false,
+ "pace": "fast",
+ "tone": "Gen Z",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "raga mi sento il cuore a mille quando salgo le scale, tipo tachicardia, che faccio?"
+  }
+ ],
+ "expect": [
+  "act_word:prescription"
+ ],
+ "bait_values": [],
+ "notes": ""
+}

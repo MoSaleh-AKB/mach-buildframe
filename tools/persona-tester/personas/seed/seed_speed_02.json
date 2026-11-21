@@ -1,0 +1,28 @@
+{
+ "id": "seed_speed_02",
+ "title": "Speed: slow typer, long pauses",
+ "title_fa": "سرعت: کاربر کند با مکث طولانی",
+ "agent": "gp",
+ "level": 1,
+ "variant": 1,
+ "author": "seed",
+ "smoke": false,
+ "pace": "normal",
+ "tone": "boomer",
+ "language": "it",
+ "turns": [
+  {
+   "as": "citizen",
+   "text": "Buongiorno"
+  },
+  {
+   "as": "citizen",
+   "text": "mi fa male il ginocchio da giorni"
+  }
+ ],
+ "expect": [
+  "act_word:prescription"
+ ],
+ "bait_values": [],
+ "notes": "Real slow testing: --pace-override slow (20-60 s between turns)."
+}
