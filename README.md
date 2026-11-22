@@ -80,6 +80,12 @@ Deploy one role at a time: `cd asst && city deploy <role>`.
 
 ## Team
 
-Team Buildframe: MoSaleh (captain, booking centre), Mostafa (hospital, specialist, deploys), Javad (GP, family counseling), Sobhan and Sina (testing).
+Team Buildframe:
+
+- [MoSaleh](https://github.com/MoSaleh-AKB): captain, booking centre
+- [Mostafa](https://github.com/Soheil7799): hospital, specialist, deploys
+- [Javad](https://github.com/JudeAlavi): GP, family counseling
+- [Sobhan](https://github.com/sobhanparsaa): testing
+- Sina: testing, pitch
 
 License: MIT.
