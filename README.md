@@ -86,6 +86,6 @@ Team Buildframe:
 - [Mostafa](https://github.com/Soheil7799): hospital, specialist, deploys
 - [Javad](https://github.com/JudeAlavi): GP, family counseling
 - [Sobhan](https://github.com/sobhanparsaa): testing
-- Sina: testing, pitch
+- [Sina](https://github.com/moayeri-sina): testing, pitch
 
 License: MIT.
